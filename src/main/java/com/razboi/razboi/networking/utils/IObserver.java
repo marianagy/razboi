@@ -1,4 +1,4 @@
-package com.razboi.razboi.utils;
+package com.razboi.razboi.networking.utils;
 
 
 public interface IObserver {

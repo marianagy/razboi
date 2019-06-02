@@ -1,7 +1,10 @@
 package com.razboi.razboi.networking;
 
-import com.razboi.razboi.utils.IObserver;
-import com.razboi.razboi.utils.IServer;
+import com.razboi.razboi.business.service.user.dto.UserDTO;
+import com.razboi.razboi.networking.utils.IObserver;
+import com.razboi.razboi.networking.utils.IServer;
+import com.razboi.razboi.networking.utils.ServerException;
+import com.razboi.razboi.persistence.user.entity.User;
 
 import java.io.IOException;
 import java.io.ObjectInputStream;
@@ -69,7 +72,43 @@ public class ClientObjectWorker implements Runnable, IObserver {
     }
 
     private Response handleRequest(Request request){
-        return null;
+        Response response = null;
+        System.out.println();
+
+        //handle login
+        if (request.type().equals(RequestType.LOGIN)) {
+            System.out.println("Login request ...");
+            User loginDTO = (User) request.data();
+            String username = loginDTO.getUsername();
+            String password = loginDTO.getPassword();
+            try {
+                // server din triathlon server
+                return server.login(loginDTO, this);
+
+            } catch (ServerException e) {
+                connected = false;
+                return new Response.Builder().data(e).type(ResponseType.ERROR).build();
+            } catch (Exception e) {
+                connected = false;
+                e.printStackTrace();
+                return new Response.Builder().data(e).type(ResponseType.ERROR).build();
+            }
+        } else if (request.type().equals(RequestType.LOGOUT)) {
+            System.out.println("Login request ...");
+            UserDTO logoutDTO = (UserDTO) request.data();
+            String username = logoutDTO.getUsername();
+            try {
+                return server.logout(logoutDTO, this);
+            } catch (ServerException e) {
+                connected = false;
+                return new Response.Builder().data(e).type(ResponseType.ERROR).build();
+            } catch (Exception e) {
+                connected = false;
+                e.printStackTrace();
+                return new Response.Builder().data(e).type(ResponseType.ERROR).build();
+            }
+        }
+        return new Response.Builder().data("Unknown Request").type(ResponseType.ERROR).build();
     }
 
     private void sendResponse(Response response) throws IOException{
