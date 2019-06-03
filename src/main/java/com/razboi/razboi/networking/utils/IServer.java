@@ -12,7 +12,7 @@ public interface IServer {
     Response logout(UserDTO user, IObserver client) throws ServerException;
 
     Response getAllLoggedInUsers() throws ServerException;
-    Response startGame() throws ServerException;
+    Response startGame(String username) throws ServerException;
     Response addPlayer(Player player) throws ServerException;
 
 //    void startJoc() throws JocException;

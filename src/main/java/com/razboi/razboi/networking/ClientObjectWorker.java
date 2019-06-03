@@ -12,6 +12,8 @@ import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.net.Socket;
+import java.rmi.RemoteException;
+import java.util.List;
 
 public class ClientObjectWorker implements Runnable, IObserver {
 
@@ -38,7 +40,7 @@ public class ClientObjectWorker implements Runnable, IObserver {
     }
 
     @Override
-    public void run() {
+    public void run(){
         while (connected) {
             try {
                 Object request = input.readObject();
@@ -130,6 +132,14 @@ public class ClientObjectWorker implements Runnable, IObserver {
                 e.printStackTrace();
                 return new Response.Builder().data(e).type(ResponseType.ERROR).build();
             }
+        }else if (request.type().equals(RequestType.START_GAME)) {
+            System.out.println("Start game ...");
+            try {
+                return server.startGame((String)request.data());
+            } catch (ServerException e) {
+                e.printStackTrace();
+                return new Response.Builder().data(e).type(ResponseType.ERROR).build();
+            }
         }
         return new Response.Builder().data("Unknown Request").type(ResponseType.ERROR).build();
     }
@@ -146,6 +156,18 @@ public class ClientObjectWorker implements Runnable, IObserver {
     public void userLoggedIn(UserDTO user) throws ServerException {
         System.out.println("User Logged in (COW)");
         Response response = new Response.Builder().type(ResponseType.USER_LOGGED_IN).data(user).build();
+        try {
+            // send response to client
+            sendResponse(response);
+        } catch (Exception e) {
+            throw new ServerException("Error notifying");
+        }
+    }
+
+    @Override
+    public void gameStarted(List<String> inGame) throws ServerException {
+        System.out.println("Game started (COW) ...");
+        Response response= new Response.Builder().data(inGame).type(ResponseType.GAME_STARTED).build();
         try {
             // send response to client
             sendResponse(response);

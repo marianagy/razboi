@@ -10,8 +10,14 @@ import com.razboi.razboi.persistence.user.entity.User;
 import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
+import java.lang.reflect.Array;
 import java.net.Socket;
+import java.rmi.RemoteException;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Map;
 import java.util.concurrent.BlockingQueue;
+import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.LinkedBlockingQueue;
 
 public class ServerObjProxy implements IServer {
@@ -59,7 +65,7 @@ public class ServerObjProxy implements IServer {
 
     @Override
     public Response logout(UserDTO user, IObserver client) throws ServerException {
-
+        initializeConnection();
         sendRequest(new Request.Builder().data(user).type(RequestType.LOGOUT).build());
         Response response = readResponse();
 
@@ -88,9 +94,9 @@ public class ServerObjProxy implements IServer {
     }
 
     @Override
-    public Response startGame() throws ServerException{
+    public Response startGame(String username) throws ServerException{
         initializeConnection();
-        sendRequest(new Request.Builder().type(RequestType.START_GAME).build());
+        sendRequest(new Request.Builder().data(username).type(RequestType.START_GAME).build());
         Response response = readResponse();
         closeConnection();
         handleErrors(response);
@@ -172,7 +178,8 @@ public class ServerObjProxy implements IServer {
     }
 
     private boolean isUpdate(Response response) {
-        return response.type() == ResponseType.USER_LOGGED_IN;
+        return response.type() == ResponseType.USER_LOGGED_IN ||
+                response.type() == ResponseType.GAME_STARTED;
     }
 
     private void handleUpdate(Response response) {
@@ -189,7 +196,20 @@ public class ServerObjProxy implements IServer {
                 e.printStackTrace();
                 System.out.println("Something went wrong");
             }
-        } else {
+        }else if(response.type() == ResponseType.GAME_STARTED){
+            System.out.println("Game has started ...");
+            List<String> inGameUsers = (ArrayList)response.data();
+            System.out.println(inGameUsers);
+            try {
+                client.gameStarted(inGameUsers);
+            } catch (RemoteException e) {
+                e.printStackTrace();
+            } catch (ServerException e) {
+                e.printStackTrace();
+            }
+
+        }
+        else {
             System.out.println("Unknown event happened");
         }
     }

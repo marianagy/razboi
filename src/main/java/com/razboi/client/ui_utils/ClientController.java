@@ -22,6 +22,7 @@ public class ClientController implements IObserver {
     private IServer server;
 
     private ObservableList<String> loggedInUsers;
+    private ObservableList<String> inGameUsers;
     private ObservableList<String> cardsList;
 
     //private ObservableList<String> usersEnteredGame;
@@ -31,11 +32,16 @@ public class ClientController implements IObserver {
         this.server = server;
 
         loggedInUsers = FXCollections.observableArrayList();
+        inGameUsers = FXCollections.observableArrayList();
         cardsList = FXCollections.observableArrayList();
 
 
         // adds all logged in users to loggedInUsers
         getAllLoggedInUsers();
+    }
+
+    public ObservableList<String> getInGameUsers() {
+        return inGameUsers;
     }
 
     public void logout() throws ServerException {
@@ -66,6 +72,11 @@ public class ClientController implements IObserver {
         } catch (ServerException e) {
             e.printStackTrace();
         }
+    }
+
+    public void startGame() throws ServerException{
+        // ServerObjProxy
+        server.startGame(userDTO.getUsername());
     }
 
 
@@ -101,6 +112,16 @@ public class ClientController implements IObserver {
 //
 //    }
 
+    @Override
+    public void gameStarted(List<String> inGame){
+        System.out.println("Game strated (CC) ...");
+        // adauga useri in ingameuserlist
+        inGameUsers.addAll(inGame);
+
+        // vreau sa ajung in mainview din startview
+
+
+    }
 
 
     public void addPlayer(String username) throws ServerException {

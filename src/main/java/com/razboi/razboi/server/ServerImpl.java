@@ -16,6 +16,7 @@ import com.razboi.razboi.persistence.user.entity.User;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import java.rmi.RemoteException;
 import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ExecutorService;
@@ -30,6 +31,7 @@ public class ServerImpl implements IServer {
 
     private PlayerService playerService;
     private Map<String, IObserver> loggedClients;
+    private Map<String, IObserver> inGameClients;
 
     public PlayerService getPlayerService() {
         return playerService;
@@ -46,6 +48,7 @@ public class ServerImpl implements IServer {
         UserDAO userDAO = new UserDAO();
         this.userService.setDao(userDAO);
         loggedClients = new ConcurrentHashMap<>();
+        inGameClients = new ConcurrentHashMap<>();
     }
 
     @Override
@@ -89,8 +92,38 @@ public class ServerImpl implements IServer {
     }
 
     @Override
-    public Response startGame() throws ServerException {
-        return null;
+    public Response startGame(String username) throws ServerException {
+        // lista useri logati - ii bagam in joc
+        // toti userii in copiem in lista de ingameusers
+
+        loggedClients.forEach(inGameClients::putIfAbsent);
+        List<String> inGameUsernames = new ArrayList<>();
+        // salvam fiecare user ca player
+        inGameClients.forEach((key,value)->{
+            Player player=new Player();
+            player.setUsername(key);
+            player.setCards(getCards());
+            inGameUsernames.add(key);
+
+
+        });
+
+        // anuntam userii ca a inceput jocul
+        inGameClients.forEach((key,value)->{
+            try {
+                if(!key.equals(username)) {
+                    value.gameStarted(inGameUsernames);
+                }
+            } catch (RemoteException e) {
+                e.printStackTrace();
+            } catch (ServerException e) {
+                e.printStackTrace();
+            }
+        });
+
+
+        // returnez ingameusers in response
+        return new Response.Builder().data(inGameUsernames).type(ResponseType.OK).build();
     }
 
     @Override

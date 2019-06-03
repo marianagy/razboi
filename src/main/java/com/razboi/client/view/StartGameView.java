@@ -64,7 +64,8 @@ public class StartGameView {
 
     private void startGame(ActionEvent event) {
         try {
-            clientController.addPlayer(LoginView.username);
+           // clientController.addPlayer(LoginView.username);
+            clientController.startGame();
             Utils.showDialog("Start", "Hello", Alert.AlertType.INFORMATION);
             //GeneralController generalController = new GeneralController(username, clientController.getServer());
             Scene primaryScene = ((Node) (event.getSource())).getScene();
