@@ -9,6 +9,8 @@ public interface IServer {
     Response login(User user, IObserver client) throws ServerException;
 
     Response logout(UserDTO user, IObserver client) throws ServerException;
+
+    Response getAllLoggedInUsers() throws ServerException;
 //    void startJoc() throws JocException;
 
 //    String getAspectByUsername(String username) throws JocException;

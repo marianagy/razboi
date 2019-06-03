@@ -58,7 +58,6 @@ public class ServerObjProxy implements IServer {
 
     @Override
     public Response logout(UserDTO user, IObserver client) throws ServerException {
-        initializeConnection();
 
         sendRequest(new Request.Builder().data(user).type(RequestType.LOGOUT).build());
         Response response = readResponse();
@@ -77,6 +76,20 @@ public class ServerObjProxy implements IServer {
     }
 
 
+    @Override
+    public Response getAllLoggedInUsers() throws ServerException {
+        initializeConnection();
+        sendRequest(new Request.Builder().type(RequestType.GET_LOGGED_IN_USERS).build());
+        Response response = readResponse();
+        closeConnection();
+        handleErrors(response);
+        return response;
+    }
+
+
+    private void handleErrors(Response response) {
+        System.out.println("Some error happened");
+    }
     //proxy methods
 
     private void sendRequest(Request request) throws ServerException {
@@ -137,6 +150,28 @@ public class ServerObjProxy implements IServer {
         tw.start();
     }
 
+    private boolean isUpdate(Response response) {
+        return response.type() == ResponseType.USER_LOGGED_IN;
+    }
+
+    private void handleUpdate(Response response) {
+        if (response.type() == ResponseType.USER_LOGGED_IN) {
+
+            System.out.println("A new user has logged in ");
+
+            try {
+                UserDTO user = (UserDTO) response.data();
+                System.out.println("Server Proxy got this: ");
+                System.out.println(user);
+                client.userLoggedIn((UserDTO) response.data());
+            } catch (Exception e) {
+                e.printStackTrace();
+                System.out.println("Something went wrong");
+            }
+        } else {
+            System.out.println("Unknown event happened");
+        }
+    }
 
     private class ReaderThread implements Runnable {
         public void run() {
@@ -145,19 +180,15 @@ public class ServerObjProxy implements IServer {
                     Object response = input.readObject();
                     System.out.println("Response received " + response);
 
-                        /*responses.add((Response)response);
+
+                    if (isUpdate((Response) response)) {
+                        handleUpdate((Response) response);
+                    } else {
                         try {
-                            Thread.sleep(1000);
+                            qresponses.put((Response) response);
                         } catch (InterruptedException e) {
                             e.printStackTrace();
                         }
-                        synchronized (responses){
-                            responses.notify();
-                        }*/
-                    try {
-                        qresponses.put((Response) response);
-                    } catch (InterruptedException e) {
-                        e.printStackTrace();
                     }
 
                 } catch (Exception e) {

@@ -107,13 +107,34 @@ public class ClientObjectWorker implements Runnable, IObserver {
                 e.printStackTrace();
                 return new Response.Builder().data(e).type(ResponseType.ERROR).build();
             }
+        } else if (request.type().equals(RequestType.GET_LOGGED_IN_USERS)) {
+            System.out.println("get logged in users request ...");
+            try {
+                return server.getAllLoggedInUsers();
+            } catch (ServerException e) {
+                e.printStackTrace();
+                return new Response.Builder().data(e).type(ResponseType.ERROR).build();
+            }
         }
         return new Response.Builder().data("Unknown Request").type(ResponseType.ERROR).build();
     }
 
     private void sendResponse(Response response) throws IOException{
         System.out.println("sending response "+response);
+
+
         output.writeObject(response);
         output.flush();
+    }
+
+    @Override
+    public void userLoggedIn(UserDTO user) throws ServerException {
+        System.out.println("User Logged in (COW)");
+        Response response = new Response.Builder().type(ResponseType.USER_LOGGED_IN).data(user).build();
+        try {
+            sendResponse(response);
+        } catch (Exception e) {
+            throw new ServerException("Error notifying");
+        }
     }
 }

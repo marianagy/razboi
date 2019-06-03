@@ -2,5 +2,5 @@ package com.razboi.razboi.networking;
 
 
 public enum ResponseType {
-    OK, ERROR, START_JOC, ALEGE_CARTE;
+    OK, ERROR, USER_LOGGED_IN;
 }

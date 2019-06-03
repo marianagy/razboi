@@ -20,7 +20,7 @@ public abstract class AbstractServer {
                 Socket client=server.accept();
                 System.out.println("Client connected ...");
                 // processRequest e implementata si pornita in AsbConcurrentServer
-                // Thread tw=createWorker(client);
+                //Thread tw=createWorker(client);
                 //        tw.start();
                 // si createWorker e implementata in ObjectConcurrentServer
                 processRequest(client);
