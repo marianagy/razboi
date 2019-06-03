@@ -7,6 +7,7 @@ import com.razboi.razboi.networking.utils.ServerException;
 import com.razboi.razboi.persistence.game.entity.Player;
 import com.razboi.razboi.persistence.user.entity.User;
 
+import java.io.EOFException;
 import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
@@ -49,6 +50,8 @@ public class ClientObjectWorker implements Runnable, IObserver {
 //                else{
 //                    sendResponse(new ErrorResponse("Response is null"));
 //                }
+            } catch (EOFException e) {
+
             } catch (IOException | ClassNotFoundException e) {
                 e.printStackTrace();
             } catch (Exception e) {

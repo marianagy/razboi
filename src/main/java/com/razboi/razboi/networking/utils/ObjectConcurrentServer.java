@@ -1,13 +1,13 @@
 package com.razboi.razboi.networking.utils;
 
 
-
 import com.razboi.razboi.networking.ClientObjectWorker;
 
 import java.net.Socket;
 
 
 public class ObjectConcurrentServer extends AbsConcurrentServer {
+
     private IServer server;
     public ObjectConcurrentServer(int port, IServer server) {
         super(port);

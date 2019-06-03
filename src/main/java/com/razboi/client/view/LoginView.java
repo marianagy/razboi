@@ -75,7 +75,7 @@ public class LoginView {
             Utils.showDialog("Login reusit", "Hello", Alert.AlertType.INFORMATION);
             //GeneralController generalController = new GeneralController(username, clientController.getServer());
             Scene primaryScene = ((Node) (event.getSource())).getScene();
-            Pane root = new MainView(this.clientController).getView();
+            Pane root = new StartGameView(this.clientController).getView();
             Stage stage = new Stage();
             stage.setTitle("Main View");
             stage.setScene(new Scene(root, 1200, 600));

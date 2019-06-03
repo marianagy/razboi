@@ -3,7 +3,6 @@ package com.razboi.client.view;
 import com.razboi.client.ui_utils.ClientController;
 import com.razboi.client.ui_utils.Utils;
 import com.razboi.razboi.networking.utils.ServerException;
-import javafx.collections.ListChangeListener;
 import javafx.collections.ObservableList;
 import javafx.event.ActionEvent;
 import javafx.event.EventHandler;
@@ -11,29 +10,21 @@ import javafx.scene.Node;
 import javafx.scene.Scene;
 import javafx.scene.control.Alert;
 import javafx.scene.control.Button;
-import javafx.scene.control.Label;
-import javafx.scene.control.ListView;
 import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.GridPane;
 import javafx.scene.layout.Pane;
 import javafx.stage.Stage;
 
-public class MainView {
+public class StartGameView {
+
     BorderPane pane;
     ClientController clientController;
 
     private ObservableList<String> loggedInUsers;
-    public MainView(ClientController clientController) {
+
+    public StartGameView(ClientController clientController) {
         this.clientController = clientController;
-        this.loggedInUsers = clientController.getLoggedInUsers();
-        System.out.println(this.loggedInUsers);
-        this.loggedInUsers.addListener(new ListChangeListener<String>() {
-            @Override
-            public void onChanged(Change<? extends String> c) {
-                System.out.println("List changed");
-                System.out.println(loggedInUsers);
-            }
-        });
+
         initView();
 
     }
@@ -42,28 +33,14 @@ public class MainView {
         pane = new BorderPane();
         pane.setCenter(initPane());
 //        pane.setCenter();
-        pane.setLeft(makeUserList());
+//        pane.setLeft(makeUserList());
         //pane.setLeft(createScore());
         //controlButtons();
     }
 
 
-    private GridPane makeUserList() {
-
-        GridPane grid = Utils.initWindow("Logged In users");
-        ListView<String> list = new ListView<String>();
-        list.setItems(loggedInUsers);
-        Label listLabel = new Label();
-        listLabel.setText("Logged in users: ");
-
-//        grid.add(listLabel,0,0);
-        grid.add(list, 0, 1);
-        return grid;
-    }
-
-
     private GridPane initPane() {
-        GridPane grid = Utils.initWindow("sa vedem");
+        GridPane grid = Utils.initWindow("Welcome");
 
         Button logoutBtn = new Button("Logout");
         logoutBtn.setOnAction(new EventHandler<ActionEvent>() {
@@ -74,11 +51,35 @@ public class MainView {
         });
         grid.add(logoutBtn, 0, 6, 2, 1);
 
+        Button startGameBtn = new Button("Start Game");
+        startGameBtn.setOnAction(new EventHandler<ActionEvent>() {
+            public void handle(ActionEvent event) {
+                startGame(event);
 
+            }
+        });
+        grid.add(startGameBtn, 0, 5, 2, 1);
         return grid;
     }
 
+    private void startGame(ActionEvent event) {
+        try {
+            clientController.addPlayer(LoginView.username);
+            Utils.showDialog("Start", "Hello", Alert.AlertType.INFORMATION);
+            //GeneralController generalController = new GeneralController(username, clientController.getServer());
+            Scene primaryScene = ((Node) (event.getSource())).getScene();
+            Pane root = new MainView(this.clientController).getView();
+            Stage stage = new Stage();
+            stage.setTitle("Razboi");
+            stage.setScene(new Scene(root, 1200, 600));
+            stage.show();
+            //Hide this current window (if this is what you want)
+            primaryScene.getWindow().hide();
 
+        } catch (ServerException e) {
+            Utils.showDialog("Game failed to start: " + e.getMessage(), "Eroare", Alert.AlertType.ERROR);
+        }
+    }
 
     private void logout(ActionEvent event) {
         try {

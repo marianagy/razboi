@@ -14,8 +14,6 @@ import com.razboi.razboi.persistence.game.entity.Player;
 import com.razboi.razboi.persistence.user.dao.UserDAO;
 import com.razboi.razboi.persistence.user.entity.User;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Component;
-import org.springframework.stereotype.Controller;
 import org.springframework.stereotype.Service;
 
 import java.util.*;
@@ -24,7 +22,7 @@ import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
 
-@Controller
+@Service
 public class ServerImpl implements IServer {
 
     AuthService authService;
@@ -41,12 +39,12 @@ public class ServerImpl implements IServer {
     public void setPlayerService(PlayerService playerService) {
         this.playerService = playerService;
     }
+
     public ServerImpl() {
         this.authService = new UserService();
         this.userService = new UserService();
         UserDAO userDAO = new UserDAO();
         this.userService.setDao(userDAO);
-//        this.playerService = playerService;
         loggedClients = new ConcurrentHashMap<>();
     }
 
@@ -102,7 +100,6 @@ public class ServerImpl implements IServer {
         return new Response.Builder().type(ResponseType.OK).build();
     }
 
-    //TODO: putin mai optim (notify score added, notify score removed) de schimbat cu logged clients
     private void notifyUserLoggedIn(UserDTO loggedInUser) {
         //List<User> users = userService.readAll();
 
