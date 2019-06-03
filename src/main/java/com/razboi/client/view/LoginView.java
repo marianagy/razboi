@@ -22,6 +22,7 @@ public class LoginView {
     private static final Logger logger = LogManager.getLogger();
     BorderPane pane;
     TextField usernameBox, passwordBox;
+    static String username;
     ClientController clientController;
 
     public LoginView(ClientController controller) {
@@ -67,7 +68,7 @@ public class LoginView {
     }
 
     private void login(ActionEvent event) {
-        String username = usernameBox.getText();
+        username = usernameBox.getText();
         String password = passwordBox.getText();
         try {
             clientController.login(username, password);

@@ -2,11 +2,12 @@ package com.razboi.razboi.persistence.game.entity;
 
 
 import javax.persistence.*;
+import java.io.Serializable;
 import java.util.List;
 
 @Entity
 @Table(name = "game")
-public class Game {
+public class Game implements Serializable {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)

@@ -6,9 +6,11 @@ import com.razboi.razboi.networking.ResponseType;
 import com.razboi.razboi.networking.utils.IObserver;
 import com.razboi.razboi.networking.utils.IServer;
 import com.razboi.razboi.networking.utils.ServerException;
+import com.razboi.razboi.persistence.game.entity.Player;
 import com.razboi.razboi.persistence.user.entity.User;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
+import javafx.scene.control.ListView;
 
 import java.rmi.RemoteException;
 import java.util.List;
@@ -20,12 +22,19 @@ public class ClientController implements IObserver {
     private IServer server;
 
     private ObservableList<String> loggedInUsers;
+    private ObservableList<String> cardsList;
+
+    //private ObservableList<String> usersEnteredGame;
 
     public ClientController(IServer server) throws RemoteException {
         super();
         this.server = server;
 
         loggedInUsers = FXCollections.observableArrayList();
+        cardsList = FXCollections.observableArrayList();
+
+
+        // adds all logged in users to loggedInUsers
         getAllLoggedInUsers();
     }
 
@@ -35,6 +44,10 @@ public class ClientController implements IObserver {
 
     }
 
+    /**
+     * Getter pentru loggedInUsers
+     * @return
+     */
     public ObservableList<String> getLoggedInUsers() {
         return loggedInUsers;
     }
@@ -43,8 +56,12 @@ public class ClientController implements IObserver {
         this.loggedInUsers = loggedInUsers;
     }
 
+    /**
+     * Gets all logged in users
+     */
     private void getAllLoggedInUsers() {
         try {
+            // server e ServerProxy
             loggedInUsers.addAll((List<String>) server.getAllLoggedInUsers().data());
         } catch (ServerException e) {
             e.printStackTrace();
@@ -77,6 +94,19 @@ public class ClientController implements IObserver {
     public void userLoggedIn(UserDTO user) {
         System.out.println(user.getUsername() + " just logged in.");
         this.loggedInUsers.add(user.getUsername());
+    }
+
+//    @Override
+//    public void userEnteredGame(UserDTO user) throws ServerException {
+//
+//    }
+
+
+
+    public void addPlayer(String username) throws ServerException {
+        Player player=new Player();
+        player.setUsername(username);
+        server.addPlayer(player);
     }
 
     public IServer getServer() {

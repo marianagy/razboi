@@ -24,7 +24,7 @@ public class JDBC {
         jdbcProps = new Properties();
         FileReader fileReader = null;
         try {
-            fileReader = new FileReader("C:\\Users\\Dan\\IdeaProjects\\razboi-nou\\src\\main\\resources\\bd.config");
+            fileReader = new FileReader("D:\\Facultate\\Sem II\\MPP\\razboi\\src\\main\\resources\\bd.config");
 
             jdbcProps.load(fileReader);
         } catch (Exception e) {

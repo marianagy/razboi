@@ -4,6 +4,7 @@ import com.razboi.razboi.business.service.user.dto.UserDTO;
 import com.razboi.razboi.networking.utils.IObserver;
 import com.razboi.razboi.networking.utils.IServer;
 import com.razboi.razboi.networking.utils.ServerException;
+import com.razboi.razboi.persistence.game.entity.Player;
 import com.razboi.razboi.persistence.user.entity.User;
 
 import java.io.IOException;
@@ -19,18 +20,17 @@ public class ClientObjectWorker implements Runnable, IObserver {
     private ObjectInputStream input;
     private ObjectOutputStream output;
     private volatile boolean connected;
-    private static Response okResponse=new Response.Builder().type(ResponseType.OK).build();
+    private static Response okResponse = new Response.Builder().type(ResponseType.OK).build();
 
 
-
-    public ClientObjectWorker(IServer server, Socket connection){
+    public ClientObjectWorker(IServer server, Socket connection) {
         this.server = server;
         this.connection = connection;
-        try{
-            output=new ObjectOutputStream(connection.getOutputStream());
+        try {
+            output = new ObjectOutputStream(connection.getOutputStream());
             output.flush();
-            input=new ObjectInputStream(connection.getInputStream());
-            connected=true;
+            input = new ObjectInputStream(connection.getInputStream());
+            connected = true;
         } catch (IOException e) {
             e.printStackTrace();
         }
@@ -38,12 +38,12 @@ public class ClientObjectWorker implements Runnable, IObserver {
 
     @Override
     public void run() {
-        while(connected){
+        while (connected) {
             try {
-                Object request=input.readObject();
-                Response response=handleRequest((Request)request);
+                Object request = input.readObject();
+                Response response = handleRequest((Request) request);
 
-                if (response!=null){
+                if (response != null) {
                     sendResponse(response);
                 }
 //                else{
@@ -51,9 +51,9 @@ public class ClientObjectWorker implements Runnable, IObserver {
 //                }
             } catch (IOException | ClassNotFoundException e) {
                 e.printStackTrace();
-            } catch (Exception e){
-
-                System.out.println("Error: "+e);
+            } catch (Exception e) {
+                e.printStackTrace();
+                System.out.println("Error: " + e);
             }
             try {
                 Thread.sleep(1000);
@@ -66,12 +66,14 @@ public class ClientObjectWorker implements Runnable, IObserver {
             output.close();
             connection.close();
         } catch (Exception e) {
-            System.out.println("Error "+e);
+
+            e.printStackTrace();
+            System.out.println("Error " + e);
         }
 
     }
 
-    private Response handleRequest(Request request){
+    private Response handleRequest(Request request) {
         Response response = null;
         System.out.println();
 
@@ -82,7 +84,7 @@ public class ClientObjectWorker implements Runnable, IObserver {
             String username = loginDTO.getUsername();
             String password = loginDTO.getPassword();
             try {
-                // server din triathlon server
+                // server din ServerImpl care returneaza un response
                 return server.login(loginDTO, this);
 
             } catch (ServerException e) {
@@ -110,7 +112,17 @@ public class ClientObjectWorker implements Runnable, IObserver {
         } else if (request.type().equals(RequestType.GET_LOGGED_IN_USERS)) {
             System.out.println("get logged in users request ...");
             try {
+
                 return server.getAllLoggedInUsers();
+            } catch (ServerException e) {
+                e.printStackTrace();
+                return new Response.Builder().data(e).type(ResponseType.ERROR).build();
+            }
+        } else if (request.type().equals(RequestType.SAVE_PLAYER)) {
+            System.out.println("add player ...");
+            try {
+                Player player = (Player) request.data();
+                return server.addPlayer(player);
             } catch (ServerException e) {
                 e.printStackTrace();
                 return new Response.Builder().data(e).type(ResponseType.ERROR).build();
@@ -119,8 +131,8 @@ public class ClientObjectWorker implements Runnable, IObserver {
         return new Response.Builder().data("Unknown Request").type(ResponseType.ERROR).build();
     }
 
-    private void sendResponse(Response response) throws IOException{
-        System.out.println("sending response "+response);
+    private void sendResponse(Response response) throws IOException {
+        System.out.println("sending response " + response);
 
 
         output.writeObject(response);
@@ -132,6 +144,7 @@ public class ClientObjectWorker implements Runnable, IObserver {
         System.out.println("User Logged in (COW)");
         Response response = new Response.Builder().type(ResponseType.USER_LOGGED_IN).data(user).build();
         try {
+            // send response to client
             sendResponse(response);
         } catch (Exception e) {
             throw new ServerException("Error notifying");

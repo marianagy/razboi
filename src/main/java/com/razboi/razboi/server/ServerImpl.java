@@ -1,5 +1,6 @@
 package com.razboi.razboi.server;
 
+import com.razboi.razboi.business.service.PlayerService;
 import com.razboi.razboi.business.service.user.AuthService;
 import com.razboi.razboi.business.service.user.ServiceException;
 import com.razboi.razboi.business.service.user.UserService;
@@ -9,25 +10,43 @@ import com.razboi.razboi.networking.ResponseType;
 import com.razboi.razboi.networking.utils.IObserver;
 import com.razboi.razboi.networking.utils.IServer;
 import com.razboi.razboi.networking.utils.ServerException;
+import com.razboi.razboi.persistence.game.entity.Player;
+import com.razboi.razboi.persistence.user.dao.UserDAO;
 import com.razboi.razboi.persistence.user.entity.User;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Component;
+import org.springframework.stereotype.Controller;
+import org.springframework.stereotype.Service;
 
-import java.util.ArrayList;
-import java.util.Iterator;
-import java.util.Map;
+import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
+
+@Controller
 public class ServerImpl implements IServer {
 
     AuthService authService;
     UserService userService;
+
+    private PlayerService playerService;
     private Map<String, IObserver> loggedClients;
 
+    public PlayerService getPlayerService() {
+        return playerService;
+    }
 
-    public ServerImpl(AuthService authService, UserService userService) {
-        this.authService = authService;
-        this.userService = userService;
+    @Autowired
+    public void setPlayerService(PlayerService playerService) {
+        this.playerService = playerService;
+    }
+    public ServerImpl() {
+        this.authService = new UserService();
+        this.userService = new UserService();
+        UserDAO userDAO = new UserDAO();
+        this.userService.setDao(userDAO);
+//        this.playerService = playerService;
         loggedClients = new ConcurrentHashMap<>();
     }
 
@@ -62,9 +81,25 @@ public class ServerImpl implements IServer {
 
     }
 
+    /**
+     * Gets logged in users from loggedClients list
+     * @return
+     */
     @Override
     public Response getAllLoggedInUsers() {
         return new Response.Builder().data(new ArrayList(loggedClients.keySet())).type(ResponseType.OK).build();
+    }
+
+    @Override
+    public Response startGame() throws ServerException {
+        return null;
+    }
+
+    @Override
+    public Response addPlayer(Player player) throws ServerException {
+        player.setCards(getCards());
+        playerService.save(player);
+        return new Response.Builder().type(ResponseType.OK).build();
     }
 
     //TODO: putin mai optim (notify score added, notify score removed) de schimbat cu logged clients
@@ -104,5 +139,33 @@ public class ServerImpl implements IServer {
         System.out.println("After after");
         System.out.println(loggedClients);
         executor.shutdown();
+    }
+
+    /**
+     * Method generates initial card list
+     * @return
+     */
+    public String getCards() {
+        String cartiInitiale = "";
+        Random rand = new Random();
+        List<String> givenList = new ArrayList<>();
+        givenList.add("6");
+        givenList.add("7");
+        givenList.add("8");
+        givenList.add("9");
+        givenList.add("J");
+        givenList.add("Q");
+        givenList.add("K");
+        givenList.add("A");
+
+        int numberOfElements = 4;
+
+        for (int i = 0; i < numberOfElements; i++) {
+            int randomIndex = rand.nextInt(givenList.size());
+            String randomElement = givenList.get(randomIndex);
+            cartiInitiale = cartiInitiale + randomElement;
+            givenList.remove(randomIndex);
+        }
+        return cartiInitiale;
     }
 }

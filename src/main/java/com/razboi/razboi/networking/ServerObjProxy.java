@@ -4,6 +4,7 @@ import com.razboi.razboi.business.service.user.dto.UserDTO;
 import com.razboi.razboi.networking.utils.IObserver;
 import com.razboi.razboi.networking.utils.IServer;
 import com.razboi.razboi.networking.utils.ServerException;
+import com.razboi.razboi.persistence.game.entity.Player;
 import com.razboi.razboi.persistence.user.entity.User;
 
 import java.io.IOException;
@@ -80,6 +81,26 @@ public class ServerObjProxy implements IServer {
     public Response getAllLoggedInUsers() throws ServerException {
         initializeConnection();
         sendRequest(new Request.Builder().type(RequestType.GET_LOGGED_IN_USERS).build());
+        Response response = readResponse();
+        closeConnection();
+        handleErrors(response);
+        return response;
+    }
+
+    @Override
+    public Response startGame() throws ServerException{
+        initializeConnection();
+        sendRequest(new Request.Builder().type(RequestType.START_GAME).build());
+        Response response = readResponse();
+        closeConnection();
+        handleErrors(response);
+        return response;
+    }
+
+    @Override
+    public Response addPlayer(Player player) throws ServerException {
+        initializeConnection();
+        sendRequest(new Request.Builder().data(player).type(RequestType.SAVE_PLAYER).build());
         Response response = readResponse();
         closeConnection();
         handleErrors(response);

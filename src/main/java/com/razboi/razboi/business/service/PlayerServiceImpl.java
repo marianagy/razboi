@@ -13,8 +13,17 @@ public class PlayerServiceImpl implements PlayerService {
 
     private PlayerDAO playerDAO;
 
+
+
+    public PlayerServiceImpl() {
+    }
+
+    public PlayerDAO getPlayerDAO() {
+        return playerDAO;
+    }
+
     @Autowired
-    public PlayerServiceImpl(PlayerDAO playerDAO) {
+    public void setPlayerDAO(PlayerDAO playerDAO) {
         this.playerDAO = playerDAO;
     }
 
@@ -45,5 +54,7 @@ public class PlayerServiceImpl implements PlayerService {
     public void deleteById(int id) {
         playerDAO.deleteById(id);
     }
+
+
 
 }

@@ -1,9 +1,11 @@
 package com.razboi.razboi.business.service;
 
 import com.razboi.razboi.persistence.game.entity.Player;
+import org.springframework.stereotype.Service;
 
 import java.util.List;
 
+@Service
 public interface PlayerService {
 
     List<Player> findAll();

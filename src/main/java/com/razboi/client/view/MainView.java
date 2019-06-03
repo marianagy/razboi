@@ -18,6 +18,9 @@ import javafx.scene.layout.GridPane;
 import javafx.scene.layout.Pane;
 import javafx.stage.Stage;
 
+import javax.swing.*;
+import java.time.LocalDate;
+
 public class MainView {
     BorderPane pane;
     ClientController clientController;
@@ -73,7 +76,35 @@ public class MainView {
             }
         });
         grid.add(logoutBtn, 0, 6, 2, 1);
+
+        Button startGameBtn = new Button("Start Game");
+        startGameBtn.setOnAction(new EventHandler<ActionEvent>() {
+            public void handle(ActionEvent event) {
+                startGame(event);
+
+            }
+        });
+        grid.add(startGameBtn, 0, 5, 2, 1);
         return grid;
+    }
+
+    private void startGame(ActionEvent event){
+        try {
+            clientController.addPlayer(LoginView.username);
+            Utils.showDialog("Start", "Hello", Alert.AlertType.INFORMATION);
+            //GeneralController generalController = new GeneralController(username, clientController.getServer());
+            Scene primaryScene = ((Node) (event.getSource())).getScene();
+            Pane root = new MainView(this.clientController).getView();
+            Stage stage = new Stage();
+            stage.setTitle("Main View");
+            stage.setScene(new Scene(root, 1200, 600));
+            stage.show();
+            //Hide this current window (if this is what you want)
+            primaryScene.getWindow().hide();
+
+        } catch (ServerException e) {
+            Utils.showDialog("Game failed to start: " + e.getMessage(), "Eroare", Alert.AlertType.ERROR);
+        }
     }
 
     private void logout(ActionEvent event) {
