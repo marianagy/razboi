@@ -28,6 +28,15 @@ public class PlayerController {
         return ResponseEntity.ok().body(playerService.findAll());
     }
 
+    @RequestMapping(value = "/winner",
+            method = RequestMethod.GET
+    )
+    @ResponseBody
+    public ResponseEntity getWinner() {
+        return ResponseEntity.ok().body(playerService.winner());
+    }
+
+
     @RequestMapping(value = "/players/{id}",
             method = RequestMethod.GET
     )

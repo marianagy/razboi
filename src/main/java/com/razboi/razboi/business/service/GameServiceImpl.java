@@ -2,6 +2,7 @@ package com.razboi.razboi.business.service;
 
 import com.razboi.razboi.persistence.game.GameDAO;
 import com.razboi.razboi.persistence.game.entity.Game;
+import com.razboi.razboi.persistence.game.entity.Player;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -44,5 +45,10 @@ public class GameServiceImpl implements GameService {
     @Override
     public void deleteById(int id) {
         gameDAO.deleteById(id);
+    }
+
+    @Override
+    public List<Player> getGame(Game game) {
+        return gameDAO.getGame(game);
     }
 }

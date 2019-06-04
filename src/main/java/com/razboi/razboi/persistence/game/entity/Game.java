@@ -17,13 +17,13 @@ public class Game implements Serializable {
 
 
     @OneToMany(cascade = CascadeType.ALL,
-            fetch = FetchType.LAZY,
+            fetch = FetchType.EAGER,
             mappedBy = "participatedInGame")
     List<Player> participants;
 
 
     @OneToMany(cascade = CascadeType.ALL,
-            fetch = FetchType.LAZY,
+            fetch = FetchType.EAGER,
             mappedBy = "wonGame")
     List<Player> winners;
 

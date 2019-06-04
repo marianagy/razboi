@@ -2,6 +2,7 @@ package com.razboi.razboi.rest.controller;
 
 import com.razboi.razboi.business.service.GameService;
 import com.razboi.razboi.persistence.game.entity.Game;
+import com.razboi.razboi.persistence.game.entity.Player;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -38,6 +39,19 @@ public class GameController {
             throw new RuntimeException("Game with id: "+ id +" not found");
         }
         return ResponseEntity.ok().body(game);
+    }
+
+    @RequestMapping(value = "/game/{id}",
+            method = RequestMethod.GET
+    )
+    @ResponseBody
+    public ResponseEntity<List<Player>> getGame(@PathVariable int id) throws Exception {
+        Game game = gameService.findById(id);
+        List<Player> player = gameService.getGame(game);
+        if (game == null) {
+            throw new RuntimeException("Game with id: "+ id +" not found");
+        }
+        return ResponseEntity.ok().body(player);
     }
 
     @RequestMapping(value = "/save-game",

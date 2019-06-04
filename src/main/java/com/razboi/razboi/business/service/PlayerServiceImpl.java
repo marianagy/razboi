@@ -55,6 +55,11 @@ public class PlayerServiceImpl implements PlayerService {
         playerDAO.deleteById(id);
     }
 
+    @Override
+    public Player winner() {
+        return playerDAO.findByWonGame_IDIsNotNull();
+
+    }
 
 
 }

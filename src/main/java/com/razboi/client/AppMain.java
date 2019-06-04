@@ -14,6 +14,7 @@ import java.io.FileInputStream;
 import java.io.IOException;
 import java.util.Properties;
 
+
 public class AppMain extends Application {
     private static int defaultChatPort = 55555;
     private static String defaultServer = "localhost";

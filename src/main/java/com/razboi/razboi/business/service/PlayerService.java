@@ -5,7 +5,7 @@ import org.springframework.stereotype.Service;
 
 import java.util.List;
 
-@Service
+
 public interface PlayerService {
 
     List<Player> findAll();
@@ -15,4 +15,6 @@ public interface PlayerService {
     void save(Player player);
 
     void deleteById(int id);
+
+    Player winner();
 }
