@@ -8,11 +8,15 @@ import com.razboi.razboi.networking.utils.IServer;
 import com.razboi.razboi.networking.utils.ServerException;
 import com.razboi.razboi.persistence.game.entity.Player;
 import com.razboi.razboi.persistence.user.entity.User;
+import javafx.beans.property.BooleanProperty;
+import javafx.beans.property.SimpleBooleanProperty;
+import javafx.beans.value.ObservableBooleanValue;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.scene.control.ListView;
 
 import java.rmi.RemoteException;
+import java.util.ArrayList;
 import java.util.List;
 
 public class ClientController implements IObserver {
@@ -23,7 +27,31 @@ public class ClientController implements IObserver {
 
     private ObservableList<String> loggedInUsers;
     private ObservableList<String> inGameUsers;
+
+    private BooleanProperty gameStarted;
+
+    public void setInGameUsers(ObservableList<String> inGameUsers) {
+        this.inGameUsers = inGameUsers;
+    }
+
+    public UserDTO getUserDTO() {
+        return userDTO;
+    }
+
     private ObservableList<String> cardsList;
+
+    public BooleanProperty isGameStarted() {
+        return gameStarted;
+    }
+
+    public BooleanProperty gameStartedProperty() {
+        return gameStarted;
+    }
+
+    public void setGameStarted(boolean gameStarted) {
+        this.gameStarted.set(gameStarted);
+    }
+
 
     //private ObservableList<String> usersEnteredGame;
 
@@ -34,10 +62,8 @@ public class ClientController implements IObserver {
         loggedInUsers = FXCollections.observableArrayList();
         inGameUsers = FXCollections.observableArrayList();
         cardsList = FXCollections.observableArrayList();
-
-
-        // adds all logged in users to loggedInUsers
-        getAllLoggedInUsers();
+        gameStarted = new SimpleBooleanProperty();
+        gameStarted.setValue(false);
     }
 
     public ObservableList<String> getInGameUsers() {
@@ -76,7 +102,11 @@ public class ClientController implements IObserver {
 
     public void startGame() throws ServerException{
         // ServerObjProxy
-        server.startGame(userDTO.getUsername());
+        Response startGameResponse = server.startGame(userDTO.getUsername());
+        if(startGameResponse.type().equals(ResponseType.OK)){
+            List<String> serverInGameUsers = (ArrayList)startGameResponse.data();
+            this.inGameUsers.addAll(serverInGameUsers);
+        }
     }
 
 
@@ -112,13 +142,19 @@ public class ClientController implements IObserver {
 //
 //    }
 
+    /**
+     * Add users to inGameUsers -> asta ajunge in
+     * @param inGame
+     */
     @Override
     public void gameStarted(List<String> inGame){
         System.out.println("Game strated (CC) ...");
         // adauga useri in ingameuserlist
         inGameUsers.addAll(inGame);
+        this.gameStarted.setValue(true);
 
         // vreau sa ajung in mainview din startview
+
 
 
     }

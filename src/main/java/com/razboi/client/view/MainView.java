@@ -23,17 +23,20 @@ public class MainView {
     ClientController clientController;
 
     private ObservableList<String> loggedInUsers;
+    private ObservableList<String> inGameUsers;
+
     public MainView(ClientController clientController) {
         this.clientController = clientController;
-        this.loggedInUsers = clientController.getLoggedInUsers();
-        System.out.println(this.loggedInUsers);
-        this.loggedInUsers.addListener(new ListChangeListener<String>() {
-            @Override
-            public void onChanged(Change<? extends String> c) {
-                System.out.println("List changed");
-                System.out.println(loggedInUsers);
-            }
-        });
+//        this.loggedInUsers = clientController.getLoggedInUsers();
+        this.inGameUsers = clientController.getInGameUsers();
+        System.out.println(this.inGameUsers);
+//        this.inGameUsers.addListener(new ListChangeListener<String>() {
+//            @Override
+//            public void onChanged(Change<? extends String> c) {
+//                System.out.println("List changed");
+//                System.out.println(loggedInUsers);
+//            }
+//        });
         initView();
 
     }
@@ -48,13 +51,17 @@ public class MainView {
     }
 
 
+    /**
+     * Generates logged in user list
+     * @return
+     */
     private GridPane makeUserList() {
 
-        GridPane grid = Utils.initWindow("Logged In users");
+        GridPane grid = Utils.initWindow("In game users");
         ListView<String> list = new ListView<String>();
-        list.setItems(loggedInUsers);
+        list.setItems(inGameUsers);
         Label listLabel = new Label();
-        listLabel.setText("Logged in users: ");
+        listLabel.setText("In game users: ");
 
 //        grid.add(listLabel,0,0);
         grid.add(list, 0, 1);
@@ -63,7 +70,7 @@ public class MainView {
 
 
     private GridPane initPane() {
-        GridPane grid = Utils.initWindow("sa vedem");
+        GridPane grid = Utils.initWindow("Welcome "+clientController.getUserDTO().getUsername());
 
         Button logoutBtn = new Button("Logout");
         logoutBtn.setOnAction(new EventHandler<ActionEvent>() {

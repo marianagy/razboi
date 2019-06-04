@@ -135,6 +135,7 @@ public class ClientObjectWorker implements Runnable, IObserver {
         }else if (request.type().equals(RequestType.START_GAME)) {
             System.out.println("Start game ...");
             try {
+                // server is ServerImpl
                 return server.startGame((String)request.data());
             } catch (ServerException e) {
                 e.printStackTrace();

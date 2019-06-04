@@ -3,6 +3,10 @@ package com.razboi.client.view;
 import com.razboi.client.ui_utils.ClientController;
 import com.razboi.client.ui_utils.Utils;
 import com.razboi.razboi.networking.utils.ServerException;
+import javafx.application.Platform;
+import javafx.beans.property.BooleanProperty;
+import javafx.beans.value.WeakChangeListener;
+import javafx.collections.ListChangeListener;
 import javafx.collections.ObservableList;
 import javafx.event.ActionEvent;
 import javafx.event.EventHandler;
@@ -21,9 +25,32 @@ public class StartGameView {
     ClientController clientController;
 
     private ObservableList<String> loggedInUsers;
+    private BooleanProperty gameSrated;
+
+    Button startGameBtn;
 
     public StartGameView(ClientController clientController) {
         this.clientController = clientController;
+        this.gameSrated=clientController.isGameStarted();
+
+        this.gameSrated.addListener((observable, oldValue, newValue) ->  {
+            if(newValue){
+                //Scene primaryScene = ((Node) (event.getSource())).getScene();
+                System.out.println("Event listener fired");
+                Platform.runLater(
+                        () -> {
+                            Scene primaryScene = ((Node) (startGameBtn)).getScene();
+                            Pane root = new MainView(this.clientController).getView();
+                            Stage stage = new Stage();
+                            stage.setTitle("Razboi");
+                            stage.setScene(new Scene(root, 1200, 600));
+                            stage.show();
+                            primaryScene.getWindow().hide();
+                        }
+                );
+
+            }
+        });
 
         initView();
 
@@ -40,7 +67,7 @@ public class StartGameView {
 
 
     private GridPane initPane() {
-        GridPane grid = Utils.initWindow("Welcome");
+        GridPane grid = Utils.initWindow("Welcome"+clientController.getUserDTO().getUsername());
 
         Button logoutBtn = new Button("Logout");
         logoutBtn.setOnAction(new EventHandler<ActionEvent>() {
@@ -51,7 +78,7 @@ public class StartGameView {
         });
         grid.add(logoutBtn, 0, 6, 2, 1);
 
-        Button startGameBtn = new Button("Start Game");
+        startGameBtn = new Button("Start Game");
         startGameBtn.setOnAction(new EventHandler<ActionEvent>() {
             public void handle(ActionEvent event) {
                 startGame(event);
@@ -62,6 +89,10 @@ public class StartGameView {
         return grid;
     }
 
+    /**
+     * When startgame putton is pressed, MainView is opened and clientController.startGame() si called
+     * @param event
+     */
     private void startGame(ActionEvent event) {
         try {
            // clientController.addPlayer(LoginView.username);

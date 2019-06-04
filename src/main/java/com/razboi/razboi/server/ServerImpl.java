@@ -1,5 +1,6 @@
 package com.razboi.razboi.server;
 
+import com.razboi.razboi.business.service.GameService;
 import com.razboi.razboi.business.service.PlayerService;
 import com.razboi.razboi.business.service.user.AuthService;
 import com.razboi.razboi.business.service.user.ServiceException;
@@ -10,6 +11,7 @@ import com.razboi.razboi.networking.ResponseType;
 import com.razboi.razboi.networking.utils.IObserver;
 import com.razboi.razboi.networking.utils.IServer;
 import com.razboi.razboi.networking.utils.ServerException;
+import com.razboi.razboi.persistence.game.entity.Game;
 import com.razboi.razboi.persistence.game.entity.Player;
 import com.razboi.razboi.persistence.user.dao.UserDAO;
 import com.razboi.razboi.persistence.user.entity.User;
@@ -29,6 +31,8 @@ public class ServerImpl implements IServer {
     AuthService authService;
     UserService userService;
 
+    private GameService gameService;
+
     private PlayerService playerService;
     private Map<String, IObserver> loggedClients;
     private Map<String, IObserver> inGameClients;
@@ -40,6 +44,11 @@ public class ServerImpl implements IServer {
     @Autowired
     public void setPlayerService(PlayerService playerService) {
         this.playerService = playerService;
+    }
+
+    @Autowired
+    public void setGameService(GameService gameService) {
+        this.gameService = gameService;
     }
 
     public ServerImpl() {
@@ -95,7 +104,8 @@ public class ServerImpl implements IServer {
     public Response startGame(String username) throws ServerException {
         // lista useri logati - ii bagam in joc
         // toti userii in copiem in lista de ingameusers
-
+        Game game=new Game();
+        gameService.save(game);
         loggedClients.forEach(inGameClients::putIfAbsent);
         List<String> inGameUsernames = new ArrayList<>();
         // salvam fiecare user ca player
@@ -103,7 +113,13 @@ public class ServerImpl implements IServer {
             Player player=new Player();
             player.setUsername(key);
             player.setCards(getCards());
+            try {
+                player.setParticipatedInGame(gameService.findById(game.getID()));
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
             inGameUsernames.add(key);
+            playerService.save(player);
 
 
         });

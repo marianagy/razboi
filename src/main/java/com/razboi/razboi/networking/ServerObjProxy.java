@@ -182,6 +182,10 @@ public class ServerObjProxy implements IServer {
                 response.type() == ResponseType.GAME_STARTED;
     }
 
+    /**
+     * Updates users if changes occur
+     * @param response
+     */
     private void handleUpdate(Response response) {
         if (response.type() == ResponseType.USER_LOGGED_IN) {
 
@@ -201,6 +205,7 @@ public class ServerObjProxy implements IServer {
             List<String> inGameUsers = (ArrayList)response.data();
             System.out.println(inGameUsers);
             try {
+                // client is of type IObserver (Controller)
                 client.gameStarted(inGameUsers);
             } catch (RemoteException e) {
                 e.printStackTrace();
