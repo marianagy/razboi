@@ -23,8 +23,10 @@ public class JDBC {
     public JDBC(){
         jdbcProps = new Properties();
         FileReader fileReader = null;
-        try {
-            fileReader = new FileReader("D:\\Facultate\\Sem II\\MPP\\exercitiu\\src\\main\\resources\\bd.config");
+        try {System.out.println("Working Directory = " +
+                System.getProperty("user.dir"));
+            ///home/dan/IdeaProjects/razboi/src/main/resources/bd.config
+            fileReader = new FileReader(System.getProperty("user.dir")+"/src/main/resources/bd.config");
 
             jdbcProps.load(fileReader);
         } catch (Exception e) {

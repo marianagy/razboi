@@ -40,7 +40,7 @@ public class AppMain extends Application {
     public void start(Stage primaryStage) throws Exception {
         Properties clientProps = new Properties();
         try {
-            clientProps.load(new FileInputStream("D:\\Facultate\\Sem II\\MPP\\exercitiu\\src\\main\\resources\\client.properties"));
+            clientProps.load(new FileInputStream(System.getProperty("user.dir")+"/src/main/resources/client.properties"));
             System.out.println("Client properties set. ");
             clientProps.list(System.out);
         } catch (IOException e) {
