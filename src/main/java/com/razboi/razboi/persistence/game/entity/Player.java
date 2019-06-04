@@ -1,12 +1,15 @@
 package com.razboi.razboi.persistence.game.entity;
 
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
+
 import javax.persistence.*;
+import java.io.Serializable;
 import java.util.List;
 
 @Entity
 @Table(name = "player")
-public class Player {
+public class Player implements Serializable {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -17,23 +20,23 @@ public class Player {
     @Column(name="username")
     private String username;
 
-    @ElementCollection
-    @CollectionTable(name="Cards", joinColumns=@JoinColumn(name="jucator_id"))
+
     @Column(name="cards")
-    private List<String> cards;
+    private String cards;
 
-    @ElementCollection
-    @CollectionTable(name="WonCards", joinColumns=@JoinColumn(name="jucator_id"))
+
     @Column(name="wonCards")
-    private List<String> wonCards;
+    private String wonCards;
 
 
 
-    @ManyToOne(fetch = FetchType.LAZY)
+    @ManyToOne(fetch = FetchType.EAGER)
+    @JsonIgnore
     @JoinColumn(name = "wonGameID")
     private Game wonGame;
 
-    @ManyToOne(fetch = FetchType.LAZY)
+    @ManyToOne(fetch = FetchType.EAGER)
+    @JsonIgnore
     @JoinColumn(name = "participatedGameID")
     private Game participatedInGame;
 
@@ -57,19 +60,19 @@ public class Player {
         this.username = username;
     }
 
-    public List<String> getCards() {
+    public String getCards() {
         return cards;
     }
 
-    public void setCards(List<String> cards) {
+    public void setCards(String cards) {
         this.cards = cards;
     }
 
-    public List<String> getWonCards() {
+    public String getWonCards() {
         return wonCards;
     }
 
-    public void setWonCards(List<String> wonCards) {
+    public void setWonCards(String wonCards) {
         this.wonCards = wonCards;
     }
 

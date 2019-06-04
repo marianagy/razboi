@@ -9,7 +9,9 @@ import com.razboi.razboi.networking.ResponseType;
 import com.razboi.razboi.networking.utils.IObserver;
 import com.razboi.razboi.networking.utils.IServer;
 import com.razboi.razboi.networking.utils.ServerException;
+import com.razboi.razboi.persistence.user.dao.UserDAO;
 import com.razboi.razboi.persistence.user.entity.User;
+import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
 import java.util.Iterator;
@@ -18,6 +20,7 @@ import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
+@Service
 public class ServerImpl implements IServer {
 
     AuthService authService;
@@ -25,9 +28,11 @@ public class ServerImpl implements IServer {
     private Map<String, IObserver> loggedClients;
 
 
-    public ServerImpl(AuthService authService, UserService userService) {
-        this.authService = authService;
-        this.userService = userService;
+    public ServerImpl() {
+        this.authService = new UserService();
+        this.userService = new UserService();
+        UserDAO userDAO = new UserDAO();
+        this.userService.setDao(userDAO);
         loggedClients = new ConcurrentHashMap<>();
     }
 
