@@ -21,16 +21,8 @@ public class Player implements Serializable {
     private String username;
 
 
-    @Column(name="cards")
-    private String cards;
 
-
-    @Column(name="wonCards")
-    private String wonCards;
-
-
-
-    @ManyToOne(fetch = FetchType.EAGER)
+    @OneToOne(fetch = FetchType.EAGER)
     @JsonIgnore
     @JoinColumn(name = "wonGameID")
     private Game wonGame;
@@ -40,8 +32,19 @@ public class Player implements Serializable {
     @JoinColumn(name = "participatedGameID")
     private Game participatedInGame;
 
+    @Column(name="position")
+    private String position;
+
     public Player() {
 
+    }
+
+    public String getPosition() {
+        return position;
+    }
+
+    public void setPosition(String position) {
+        this.position = position;
     }
 
     public Integer getID() {
@@ -60,21 +63,7 @@ public class Player implements Serializable {
         this.username = username;
     }
 
-    public String getCards() {
-        return cards;
-    }
 
-    public void setCards(String cards) {
-        this.cards = cards;
-    }
-
-    public String getWonCards() {
-        return wonCards;
-    }
-
-    public void setWonCards(String wonCards) {
-        this.wonCards = wonCards;
-    }
 
     public Game getWonGame() {
         return wonGame;

@@ -4,6 +4,8 @@ import com.razboi.razboi.business.service.user.dto.UserDTO;
 import com.razboi.razboi.networking.utils.IObserver;
 import com.razboi.razboi.networking.utils.IServer;
 import com.razboi.razboi.networking.utils.ServerException;
+import com.razboi.razboi.persistence.game.entity.Game;
+import com.razboi.razboi.persistence.game.entity.Player;
 import com.razboi.razboi.persistence.user.entity.User;
 
 import java.io.IOException;
@@ -58,7 +60,7 @@ public class ServerObjProxy implements IServer {
 
     @Override
     public Response logout(UserDTO user, IObserver client) throws ServerException {
-
+        initializeConnection();
         sendRequest(new Request.Builder().data(user).type(RequestType.LOGOUT).build());
         Response response = readResponse();
 
@@ -86,9 +88,23 @@ public class ServerObjProxy implements IServer {
         return response;
     }
 
+    @Override
+    public Response startGame(Player player, IObserver client) throws ServerException {
+        initializeConnection();
+        sendRequest(new Request.Builder().data(player).type(RequestType.START_GAME).build());
+
+
+
+        Response response = readResponse();
+        handleErrors(response);
+        return response;
+
+
+
+    }
 
     private void handleErrors(Response response) {
-        System.out.println("Some error happened");
+        //System.out.println("Some error happened");
     }
     //proxy methods
 
@@ -151,7 +167,8 @@ public class ServerObjProxy implements IServer {
     }
 
     private boolean isUpdate(Response response) {
-        return response.type() == ResponseType.USER_LOGGED_IN;
+        return response.type() == ResponseType.USER_LOGGED_IN ||
+             response.type() == ResponseType.GAME_STARTED;
     }
 
     private void handleUpdate(Response response) {
@@ -163,12 +180,24 @@ public class ServerObjProxy implements IServer {
                 UserDTO user = (UserDTO) response.data();
                 System.out.println("Server Proxy got this: ");
                 System.out.println(user);
-                client.userLoggedIn((UserDTO) response.data());
+//                client.userLoggedIn((UserDTO) response.data());
             } catch (Exception e) {
                 e.printStackTrace();
-                System.out.println("Something went wrong");
+                System.out.println("Something went wrong, user logged in event");
             }
-        } else {
+        } else if(response.type() == ResponseType.GAME_STARTED){
+            System.out.println("Game has started ");
+
+            try {
+                Game game  = (Game) response.data();
+                System.out.println("Server Proxy got this: ");
+                System.out.println(game);
+                client.gameStarted(game);
+            } catch (Exception e) {
+                e.printStackTrace();
+                System.out.println("Something went wrong, game started event");
+            }
+        }else {
             System.out.println("Unknown event happened");
         }
     }

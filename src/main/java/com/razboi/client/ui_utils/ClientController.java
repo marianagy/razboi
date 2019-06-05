@@ -6,6 +6,8 @@ import com.razboi.razboi.networking.ResponseType;
 import com.razboi.razboi.networking.utils.IObserver;
 import com.razboi.razboi.networking.utils.IServer;
 import com.razboi.razboi.networking.utils.ServerException;
+import com.razboi.razboi.persistence.game.entity.Game;
+import com.razboi.razboi.persistence.game.entity.Player;
 import com.razboi.razboi.persistence.user.entity.User;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
@@ -20,6 +22,15 @@ public class ClientController implements IObserver {
     private IServer server;
 
     private ObservableList<String> loggedInUsers;
+
+
+    public UserDTO getUserDTO() {
+        return userDTO;
+    }
+
+    public void setUserDTO(UserDTO userDTO) {
+        this.userDTO = userDTO;
+    }
 
     public ClientController(IServer server) throws RemoteException {
         super();
@@ -51,6 +62,17 @@ public class ClientController implements IObserver {
         }
     }
 
+    public void gameStart(String position){
+        Player player = new Player();
+        player.setUsername(userDTO.getUsername());
+        player.setPosition(position);
+        try {
+            this.server.startGame(player,this);
+        } catch (ServerException e) {
+            e.printStackTrace();
+        }
+    }
+
 
     public void login(String username, String password) throws ServerException {
         // server -> server proxy
@@ -72,6 +94,11 @@ public class ClientController implements IObserver {
 //
 //    }
 
+
+    @Override
+    public void gameStarted(Game game) throws RemoteException, ServerException {
+        System.out.println("game started notification"+ game.toString());
+    }
 
     @Override
     public void userLoggedIn(UserDTO user) {

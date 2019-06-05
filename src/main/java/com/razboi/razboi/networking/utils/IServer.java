@@ -3,6 +3,7 @@ package com.razboi.razboi.networking.utils;
 
 import com.razboi.razboi.business.service.user.dto.UserDTO;
 import com.razboi.razboi.networking.Response;
+import com.razboi.razboi.persistence.game.entity.Player;
 import com.razboi.razboi.persistence.user.entity.User;
 
 public interface IServer {
@@ -11,6 +12,8 @@ public interface IServer {
     Response logout(UserDTO user, IObserver client) throws ServerException;
 
     Response getAllLoggedInUsers() throws ServerException;
+
+    Response startGame(Player player, IObserver client) throws ServerException;
 //    void startJoc() throws JocException;
 
 //    String getAspectByUsername(String username) throws JocException;

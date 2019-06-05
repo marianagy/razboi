@@ -16,17 +16,26 @@ public class Game implements Serializable {
 
 
 
+
     @OneToMany(cascade = CascadeType.ALL,
             fetch = FetchType.EAGER,
             mappedBy = "participatedInGame")
     List<Player> participants;
 
 
-    @OneToMany(cascade = CascadeType.ALL,
-            fetch = FetchType.EAGER,
-            mappedBy = "wonGame")
-    List<Player> winners;
+    @OneToOne(cascade = CascadeType.ALL,
+        fetch = FetchType.EAGER,
+        mappedBy = "wonGame")
+    Player winner;
 
+
+    public Player getWinner() {
+        return winner;
+    }
+
+    public void setWinner(Player winner) {
+        this.winner = winner;
+    }
 
     public Game() {
     }
@@ -47,11 +56,5 @@ public class Game implements Serializable {
         this.participants = participants;
     }
 
-    public List<Player> getWinners() {
-        return winners;
-    }
 
-    public void setWinners(List<Player> winners) {
-        this.winners = winners;
-    }
 }

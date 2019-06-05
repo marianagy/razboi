@@ -7,12 +7,10 @@ import javafx.collections.ListChangeListener;
 import javafx.collections.ObservableList;
 import javafx.event.ActionEvent;
 import javafx.event.EventHandler;
+import javafx.geometry.Insets;
 import javafx.scene.Node;
 import javafx.scene.Scene;
-import javafx.scene.control.Alert;
-import javafx.scene.control.Button;
-import javafx.scene.control.Label;
-import javafx.scene.control.ListView;
+import javafx.scene.control.*;
 import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.GridPane;
 import javafx.scene.layout.Pane;
@@ -21,6 +19,17 @@ import javafx.stage.Stage;
 public class MainView {
     BorderPane pane;
     ClientController clientController;
+
+    // fx controls
+    Label choiceLabel;
+    Label opponentLabel;
+    Button startButton;
+
+    //board constants
+
+    private static final int BUTTON_PADDING = 20;
+    private static final int NUM_BUTTON_LINES = 3;
+    private static final int BUTTONS_PER_LINE = 3;
 
     private ObservableList<String> loggedInUsers;
     public MainView(ClientController clientController) {
@@ -40,9 +49,9 @@ public class MainView {
 
     private void initView() {
         pane = new BorderPane();
-        pane.setCenter(initPane());
-//        pane.setCenter();
-        pane.setLeft(makeUserList());
+        pane.setRight(initPane());
+        pane.setCenter(initGameBoard());
+        //pane.setLeft(makeUserList());
         //pane.setLeft(createScore());
         //controlButtons();
     }
@@ -63,16 +72,68 @@ public class MainView {
 
 
     private GridPane initPane() {
-        GridPane grid = Utils.initWindow("sa vedem");
+        GridPane grid = Utils.initWindow("Welcome "+clientController.getUserDTO().getUsername());
 
         Button logoutBtn = new Button("Logout");
         logoutBtn.setOnAction(new EventHandler<ActionEvent>() {
             public void handle(ActionEvent event) {
                 logout(event);
-                //Utils.showDialog("Helloooo Logout","logout", Alert.AlertType.CONFIRMATION);
+
             }
         });
-        grid.add(logoutBtn, 0, 6, 2, 1);
+        startButton = new Button("Start");
+        startButton.setDisable(true);
+        startButton.setOnAction(new EventHandler<ActionEvent>() {
+            public void handle(ActionEvent event) {
+                gameStart(event);
+
+            }
+        });
+
+        grid.add(logoutBtn, 0, 2, 2, 1);
+        grid.add(startButton, 0, 1, 2, 1);
+        return grid;
+    }
+
+    private void gameStart(ActionEvent event){
+        // obtin numele adversarului
+        this.clientController.gameStart(choiceLabel.getText());
+        // obtin pozitia adversarului
+        //opponentLabel.setText("Your Opponent: test");
+        System.out.println("Game start button pushed");
+    }
+    private GridPane initGameBoard(){
+        GridPane grid = new GridPane();
+        grid.setPadding(new Insets(BUTTON_PADDING));
+        grid.setHgap(BUTTON_PADDING);
+        grid.setVgap(BUTTON_PADDING);
+
+        for (int r = 0; r < NUM_BUTTON_LINES; r++) {
+            for (int c = 0; c < BUTTONS_PER_LINE; c++) {
+                int number = NUM_BUTTON_LINES * r + c;
+                Button button = new Button(String.valueOf(number));
+                grid.add(button, c, r);
+                button.setOnAction(new EventHandler<ActionEvent>() {
+                    public void handle(ActionEvent event) {
+                        //logout(event);
+                        choiceLabel.setText(String.valueOf(number));
+                        startButton.setDisable(false);
+                        System.out.println("Position "+String.valueOf(number)+" has been chosen");
+                    }
+                });
+            }
+        }
+
+        Label instructions = new Label();
+        instructions.setText("Alege pozitia si apasa butonul de start");
+        Label choice_text = new Label();
+        choice_text.setText("Pozitia aleasa: ");
+        choiceLabel = new Label();
+
+        grid.add(instructions,0,NUM_BUTTON_LINES+1,5,1);
+        grid.add(choice_text,0,NUM_BUTTON_LINES+2,4,1);
+        grid.add(choiceLabel,5,NUM_BUTTON_LINES+2,1,1);
+
         return grid;
     }
 
