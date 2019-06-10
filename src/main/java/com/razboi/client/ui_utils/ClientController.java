@@ -9,6 +9,10 @@ import com.razboi.razboi.networking.utils.ServerException;
 import com.razboi.razboi.persistence.game.entity.Game;
 import com.razboi.razboi.persistence.game.entity.Player;
 import com.razboi.razboi.persistence.user.entity.User;
+import javafx.beans.property.BooleanProperty;
+import javafx.beans.property.SimpleBooleanProperty;
+import javafx.beans.property.SimpleStringProperty;
+import javafx.beans.property.StringProperty;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 
@@ -21,8 +25,31 @@ public class ClientController implements IObserver {
     //    private AuthService authService;
     private IServer server;
 
+    private Game game;
+    private Player opponent;
+
+    public Player getOpponent() {
+        return opponent;
+    }
+
+    private BooleanProperty currentTurn = new SimpleBooleanProperty();
+
+
+    public BooleanProperty isCurrentTurn() {
+        return currentTurn;
+    }
+
+    public BooleanProperty currentTurnProperty() {
+        return currentTurn;
+    }
+
+    public Game getGame() {
+        return game;
+    }
+
     private ObservableList<String> loggedInUsers;
 
+    private StringProperty opponentName = new SimpleStringProperty();
 
     public UserDTO getUserDTO() {
         return userDTO;
@@ -30,6 +57,14 @@ public class ClientController implements IObserver {
 
     public void setUserDTO(UserDTO userDTO) {
         this.userDTO = userDTO;
+    }
+
+    public StringProperty getOpponentName() {
+        return opponentName;
+    }
+
+    public StringProperty opponentNameProperty() {
+        return opponentName;
     }
 
     public ClientController(IServer server) throws RemoteException {
@@ -67,7 +102,20 @@ public class ClientController implements IObserver {
         player.setUsername(userDTO.getUsername());
         player.setPosition(position);
         try {
-            this.server.startGame(player,this);
+            Response response = this.server.startGame(player, this);
+            if (response.type().equals(ResponseType.ERROR)) {
+                Exception e = (Exception) response.data();
+                throw new ServerException("Game failed to start");
+            } else if(response.type().equals(ResponseType.START_GAME)) {
+                Game game = (Game) response.data();
+                this.opponentName.setValue(game.getParticipants().get(1).getUsername());
+                this.opponent = game.getParticipants().get(1);
+                this.game = game;
+
+                this.currentTurn.setValue(false);
+
+            }
+
         } catch (ServerException e) {
             e.printStackTrace();
         }
@@ -98,6 +146,10 @@ public class ClientController implements IObserver {
     @Override
     public void gameStarted(Game game) throws RemoteException, ServerException {
         System.out.println("game started notification"+ game.toString());
+        opponentName.setValue(game.getParticipants().get(0).getUsername());
+        this.opponent = game.getParticipants().get(0);
+        this.game = game;
+        this.currentTurn.setValue(true);
     }
 
     @Override

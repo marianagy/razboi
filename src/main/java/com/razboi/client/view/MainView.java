@@ -3,6 +3,11 @@ package com.razboi.client.view;
 import com.razboi.client.ui_utils.ClientController;
 import com.razboi.client.ui_utils.Utils;
 import com.razboi.razboi.networking.utils.ServerException;
+import javafx.application.Platform;
+import javafx.beans.property.BooleanProperty;
+import javafx.beans.property.StringProperty;
+import javafx.beans.value.ChangeListener;
+import javafx.beans.value.ObservableValue;
 import javafx.collections.ListChangeListener;
 import javafx.collections.ObservableList;
 import javafx.event.ActionEvent;
@@ -16,6 +21,9 @@ import javafx.scene.layout.GridPane;
 import javafx.scene.layout.Pane;
 import javafx.stage.Stage;
 
+import java.util.ArrayList;
+import java.util.List;
+
 public class MainView {
     BorderPane pane;
     ClientController clientController;
@@ -24,7 +32,10 @@ public class MainView {
     Label choiceLabel;
     Label opponentLabel;
     Button startButton;
+    Label currentTurnLabel;
 
+
+    List<Button> planeButtons = new ArrayList<>();
     //board constants
 
     private static final int BUTTON_PADDING = 20;
@@ -32,6 +43,10 @@ public class MainView {
     private static final int BUTTONS_PER_LINE = 3;
 
     private ObservableList<String> loggedInUsers;
+    private StringProperty opponent;
+    private BooleanProperty currentTurn;
+
+
     public MainView(ClientController clientController) {
         this.clientController = clientController;
         this.loggedInUsers = clientController.getLoggedInUsers();
@@ -43,8 +58,53 @@ public class MainView {
                 System.out.println(loggedInUsers);
             }
         });
+        this.opponent = clientController.getOpponentName();
+        this.opponent.addListener(new ChangeListener<String>() {
+            @Override
+            public void changed(ObservableValue<? extends String> observable, String oldValue, String newValue) {
+                System.out.println("Opponent arrived...");
+                Platform.runLater(
+                        () -> {
+                            opponentLabel.setText("Your opponent: " + newValue);
+                            disableButtons();
+                        });
+            }
+        });
+
+        this.currentTurn = clientController.isCurrentTurn();
+
+        this.currentTurn.addListener((observable, oldValue, newValue) -> {
+            if (newValue) {
+
+                Platform.runLater(
+                        () -> {
+
+                            currentTurnLabel.setText("It's your turn");
+                            enableButtons();
+                        });
+
+            } else {
+                Platform.runLater(
+                        () -> {
+
+                            currentTurnLabel.setText("It's your opponents turn");
+                            disableButtons();
+                        });
+
+            }
+        });
         initView();
 
+    }
+
+    private void disableButtons() {
+
+        planeButtons.forEach(button -> button.setDisable(true));
+    }
+
+    private void enableButtons() {
+
+        planeButtons.forEach(button -> button.setDisable(false));
     }
 
     private void initView() {
@@ -72,7 +132,7 @@ public class MainView {
 
 
     private GridPane initPane() {
-        GridPane grid = Utils.initWindow("Welcome "+clientController.getUserDTO().getUsername());
+        GridPane grid = Utils.initWindow("Welcome " + clientController.getUserDTO().getUsername());
 
         Button logoutBtn = new Button("Logout");
         logoutBtn.setOnAction(new EventHandler<ActionEvent>() {
@@ -95,14 +155,15 @@ public class MainView {
         return grid;
     }
 
-    private void gameStart(ActionEvent event){
+    private void gameStart(ActionEvent event) {
         // obtin numele adversarului
         this.clientController.gameStart(choiceLabel.getText());
         // obtin pozitia adversarului
         //opponentLabel.setText("Your Opponent: test");
         System.out.println("Game start button pushed");
     }
-    private GridPane initGameBoard(){
+
+    private GridPane initGameBoard() {
         GridPane grid = new GridPane();
         grid.setPadding(new Insets(BUTTON_PADDING));
         grid.setHgap(BUTTON_PADDING);
@@ -112,13 +173,25 @@ public class MainView {
             for (int c = 0; c < BUTTONS_PER_LINE; c++) {
                 int number = NUM_BUTTON_LINES * r + c;
                 Button button = new Button(String.valueOf(number));
+                planeButtons.add(button);
                 grid.add(button, c, r);
                 button.setOnAction(new EventHandler<ActionEvent>() {
                     public void handle(ActionEvent event) {
                         //logout(event);
-                        choiceLabel.setText(String.valueOf(number));
-                        startButton.setDisable(false);
-                        System.out.println("Position "+String.valueOf(number)+" has been chosen");
+                        if (clientController.getGame() == null) {
+                            choiceLabel.setText(String.valueOf(number));
+                            startButton.setDisable(false);
+                            System.out.println("Position " + String.valueOf(number) + " has been chosen");
+
+                        } else {
+                            System.out.println("Opponent Position choice");
+
+                            boolean winCondition = clientController.getOpponent().getPosition().equals(((Button) event.getSource()).getText());
+                            if(winCondition){
+                                Utils.showDialog(clientController.getUserDTO().getUsername()+" won!!!","We have a winner", Alert.AlertType.INFORMATION);
+                            }
+                            //send notification that turn is finsihed;
+                        }
                     }
                 });
             }
@@ -130,9 +203,14 @@ public class MainView {
         choice_text.setText("Pozitia aleasa: ");
         choiceLabel = new Label();
 
-        grid.add(instructions,0,NUM_BUTTON_LINES+1,5,1);
-        grid.add(choice_text,0,NUM_BUTTON_LINES+2,4,1);
-        grid.add(choiceLabel,5,NUM_BUTTON_LINES+2,1,1);
+        opponentLabel = new Label();
+        currentTurnLabel = new Label();
+        currentTurnLabel.setText("It's your opponents turn");
+        grid.add(instructions, 0, NUM_BUTTON_LINES + 1, 5, 1);
+        grid.add(choice_text, 0, NUM_BUTTON_LINES + 2, 4, 1);
+        grid.add(choiceLabel, 5, NUM_BUTTON_LINES + 2, 1, 1);
+        grid.add(opponentLabel, 0, NUM_BUTTON_LINES + 3, 5, 1);
+        grid.add(currentTurnLabel, 0, NUM_BUTTON_LINES + 4, 5, 1);
 
         return grid;
     }

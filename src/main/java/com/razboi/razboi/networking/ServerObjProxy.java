@@ -35,12 +35,14 @@ public class ServerObjProxy implements IServer {
         this.host = host;
         this.port = port;
         qresponses = new LinkedBlockingQueue<>();
+
+        initializeConnection();
     }
 
 
     @Override
     public Response login(User user, IObserver client) throws ServerException {
-        initializeConnection();
+//        initializeConnection();
 
         sendRequest(new Request.Builder().data(user).type(RequestType.LOGIN).build());
         Response response = readResponse();
@@ -51,7 +53,7 @@ public class ServerObjProxy implements IServer {
         }
         if (response.type().equals(ResponseType.ERROR)) {
             // err=(ErrorResponse)response;
-            closeConnection();
+//            closeConnection();
             System.out.println("Eroare la login");
             //throw new ServerException(err.getMessage());
         }
@@ -60,7 +62,7 @@ public class ServerObjProxy implements IServer {
 
     @Override
     public Response logout(UserDTO user, IObserver client) throws ServerException {
-        initializeConnection();
+//        initializeConnection();
         sendRequest(new Request.Builder().data(user).type(RequestType.LOGOUT).build());
         Response response = readResponse();
 
@@ -70,7 +72,7 @@ public class ServerObjProxy implements IServer {
         }
         if (response.type().equals(ResponseType.ERROR)) {
             // err=(ErrorResponse)response;
-            closeConnection();
+//            closeConnection();
             System.out.println("Eroare la logout");
             //throw new ServerException(err.getMessage());
         }
@@ -80,17 +82,17 @@ public class ServerObjProxy implements IServer {
 
     @Override
     public Response getAllLoggedInUsers() throws ServerException {
-        initializeConnection();
+//        initializeConnection();
         sendRequest(new Request.Builder().type(RequestType.GET_LOGGED_IN_USERS).build());
         Response response = readResponse();
-        closeConnection();
+//        closeConnection();
         handleErrors(response);
         return response;
     }
 
     @Override
     public Response startGame(Player player, IObserver client) throws ServerException {
-        initializeConnection();
+        //initializeConnection();
         sendRequest(new Request.Builder().data(player).type(RequestType.START_GAME).build());
 
 

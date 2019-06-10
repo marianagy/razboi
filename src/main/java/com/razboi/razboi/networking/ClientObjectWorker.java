@@ -158,8 +158,10 @@ public class ClientObjectWorker implements Runnable, IObserver {
     @Override
     public void gameStarted(Game game) throws RemoteException, ServerException {
         System.out.println("Game Started (COW)");
+
         Response response = new Response.Builder().type(ResponseType.GAME_STARTED).data(game).build();
         try {
+            Thread.sleep(500);
             sendResponse(response);
         } catch (Exception e) {
             throw new ServerException("Error notifying");
