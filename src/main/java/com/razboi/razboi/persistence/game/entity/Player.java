@@ -5,7 +5,6 @@ import com.fasterxml.jackson.annotation.JsonIgnore;
 
 import javax.persistence.*;
 import java.io.Serializable;
-import java.util.List;
 
 @Entity
 @Table(name = "player")
@@ -32,19 +31,19 @@ public class Player implements Serializable {
     @JoinColumn(name = "participatedGameID")
     private Game participatedInGame;
 
-    @Column(name="position")
-    private String position;
+    @Column(name = "points")
+    private Integer points;
 
     public Player() {
 
     }
 
-    public String getPosition() {
-        return position;
+    public Integer getPoints() {
+        return points;
     }
 
-    public void setPosition(String position) {
-        this.position = position;
+    public void setPoints(Integer points) {
+        this.points = points;
     }
 
     public Integer getID() {

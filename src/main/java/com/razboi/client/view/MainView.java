@@ -15,7 +15,10 @@ import javafx.event.EventHandler;
 import javafx.geometry.Insets;
 import javafx.scene.Node;
 import javafx.scene.Scene;
-import javafx.scene.control.*;
+import javafx.scene.control.Alert;
+import javafx.scene.control.Button;
+import javafx.scene.control.Label;
+import javafx.scene.control.ListView;
 import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.GridPane;
 import javafx.scene.layout.Pane;
@@ -110,7 +113,7 @@ public class MainView {
     private void initView() {
         pane = new BorderPane();
         pane.setRight(initPane());
-        pane.setCenter(initGameBoard());
+        //pane.setCenter(initGameBoard());
         //pane.setLeft(makeUserList());
         //pane.setLeft(createScore());
         //controlButtons();
@@ -142,7 +145,7 @@ public class MainView {
             }
         });
         startButton = new Button("Start");
-        startButton.setDisable(true);
+        //startButton.setDisable(true);
         startButton.setOnAction(new EventHandler<ActionEvent>() {
             public void handle(ActionEvent event) {
                 gameStart(event);
@@ -157,7 +160,7 @@ public class MainView {
 
     private void gameStart(ActionEvent event) {
         // obtin numele adversarului
-        this.clientController.gameStart(choiceLabel.getText());
+        this.clientController.gameStart();
         // obtin pozitia adversarului
         //opponentLabel.setText("Your Opponent: test");
         System.out.println("Game start button pushed");
@@ -169,33 +172,7 @@ public class MainView {
         grid.setHgap(BUTTON_PADDING);
         grid.setVgap(BUTTON_PADDING);
 
-        for (int r = 0; r < NUM_BUTTON_LINES; r++) {
-            for (int c = 0; c < BUTTONS_PER_LINE; c++) {
-                int number = NUM_BUTTON_LINES * r + c;
-                Button button = new Button(String.valueOf(number));
-                planeButtons.add(button);
-                grid.add(button, c, r);
-                button.setOnAction(new EventHandler<ActionEvent>() {
-                    public void handle(ActionEvent event) {
-                        //logout(event);
-                        if (clientController.getGame() == null) {
-                            choiceLabel.setText(String.valueOf(number));
-                            startButton.setDisable(false);
-                            System.out.println("Position " + String.valueOf(number) + " has been chosen");
 
-                        } else {
-                            System.out.println("Opponent Position choice");
-
-                            boolean winCondition = clientController.getOpponent().getPosition().equals(((Button) event.getSource()).getText());
-                            if(winCondition){
-                                Utils.showDialog(clientController.getUserDTO().getUsername()+" won!!!","We have a winner", Alert.AlertType.INFORMATION);
-                            }
-                            //send notification that turn is finsihed;
-                        }
-                    }
-                });
-            }
-        }
 
         Label instructions = new Label();
         instructions.setText("Alege pozitia si apasa butonul de start");

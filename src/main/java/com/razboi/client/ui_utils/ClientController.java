@@ -97,22 +97,22 @@ public class ClientController implements IObserver {
         }
     }
 
-    public void gameStart(String position){
+    public void gameStart() {
         Player player = new Player();
         player.setUsername(userDTO.getUsername());
-        player.setPosition(position);
+        //player.setPosition(position);
         try {
             Response response = this.server.startGame(player, this);
             if (response.type().equals(ResponseType.ERROR)) {
                 Exception e = (Exception) response.data();
                 throw new ServerException("Game failed to start");
             } else if(response.type().equals(ResponseType.START_GAME)) {
-                Game game = (Game) response.data();
-                this.opponentName.setValue(game.getParticipants().get(1).getUsername());
-                this.opponent = game.getParticipants().get(1);
-                this.game = game;
 
-                this.currentTurn.setValue(false);
+
+                this.game = (Game) response.data();
+                ;
+
+
 
             }
 
@@ -146,10 +146,9 @@ public class ClientController implements IObserver {
     @Override
     public void gameStarted(Game game) throws RemoteException, ServerException {
         System.out.println("game started notification"+ game.toString());
-        opponentName.setValue(game.getParticipants().get(0).getUsername());
-        this.opponent = game.getParticipants().get(0);
+
         this.game = game;
-        this.currentTurn.setValue(true);
+        //this.currentTurn.setValue(true);
     }
 
     @Override

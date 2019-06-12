@@ -14,7 +14,8 @@ public class Game implements Serializable {
     @Column(name="id")
     private Integer ID;
 
-
+    @Column(name = "words")
+    String words;
 
 
     @OneToMany(cascade = CascadeType.ALL,
@@ -22,12 +23,30 @@ public class Game implements Serializable {
             mappedBy = "participatedInGame")
     List<Player> participants;
 
+    @Transient
+    private List<String> game_words;
+
+    public List<String> getGame_words() {
+        return game_words;
+    }
+
+    public void setGame_words(List<String> game_words) {
+        this.game_words = game_words;
+    }
 
     @OneToOne(cascade = CascadeType.ALL,
         fetch = FetchType.EAGER,
         mappedBy = "wonGame")
     Player winner;
 
+    public String getWords() {
+        return words;
+    }
+
+
+    public void setWords(String words) {
+        this.words = words;
+    }
 
     public Player getWinner() {
         return winner;

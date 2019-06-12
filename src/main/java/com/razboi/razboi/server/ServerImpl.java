@@ -16,10 +16,7 @@ import com.razboi.razboi.persistence.user.entity.User;
 import org.springframework.stereotype.Service;
 
 import java.rmi.RemoteException;
-import java.util.ArrayList;
-import java.util.Iterator;
-import java.util.Map;
-import java.util.Random;
+import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
@@ -56,6 +53,9 @@ public class ServerImpl implements IServer {
                 throw new ServerException("User already logged in.");
             }
             loggedClients.put(userDTO.getUsername(), client);
+            Player playerInstance = new Player();
+            playerInstance.setUsername(userDTO.getUsername());
+            waitingList.put(playerInstance, client);
             notifyUserLoggedIn(userDTO);
             return new Response.Builder().data(userDTO).type(ResponseType.OK).build();
 
@@ -118,6 +118,11 @@ public class ServerImpl implements IServer {
         executor.shutdown();
     }
 
+    // un notifier de end game
+
+    // o metoda de a verifica daca un joc se deruleaza
+
+
     @Override
     public Response startGame(Player player, IObserver client) throws ServerException {
         //check if user is in logged clients
@@ -125,49 +130,68 @@ public class ServerImpl implements IServer {
             throw new ServerException("User is not logged in.");
         }
         // check if waiting list has users
-        if(waitingList.isEmpty()){
-            // if waiting list empty -> pune in waiting list
-            // trimite response cum ca e in waiting list
+        while (waitingList.isEmpty()) {
+            // if waiting list empty
+            // asteapta o secunda dupa care checkuie din nou
+            try {
+                Thread.sleep(1000);
+            } catch (InterruptedException e) {
+                System.out.println("we are effed");
+            }
 
-            waitingList.put(player,client);
-            return new Response.Builder().type(ResponseType.PLAYER_WAITING).build();
-        } else {
-            // if waiting list not empty -> porneste jocul cu un random jucator
-            // instantiaza jucatori si joc
+            //return new Response.Builder().type(ResponseType.PLAYER_WAITING).build();
+        }
+
+        {
+            // if waiting list not empty -> porneste jocul
+            // instantiaza  joc
             Game game = new Game();
             game.setParticipants(new ArrayList<>());
-            game.getParticipants().add(player);
+            //game.getParticipants().add(player);
 
-            //random jucator din waitinglist
-            Random generator = new Random();
-            Object[] keys = waitingList.keySet().toArray();
-            Object randomValue = keys[generator.nextInt(keys.length)];
+            List<String> random_words = new ArrayList<>();
+            random_words.add("nuc");
+            random_words.add("trei");
+            random_words.add("bazin");
+            random_words.add("placinta");
+            random_words.add("casa");
+            random_words.add("abator");
 
-            Player player2 =(Player) randomValue;
+            Collections.shuffle(random_words);
 
-            game.getParticipants().add(player2);
+            List<String> game_words = new ArrayList<>();
+            game_words.add(random_words.get(0));
+            game_words.add(random_words.get(1));
+            game_words.add(random_words.get(2));
+            game.setGame_words(game_words);
 
+            game.setWords(game_words.toString());
 
-            Response response = new Response.Builder().type(ResponseType.GAME_STARTED).data(game).build();
+            Set<Player> players = waitingList.keySet();
+            game.getParticipants().addAll(players);
 
+            for (Map.Entry<Player, IObserver> entry : waitingList.entrySet()) {
+                System.out.println(entry.getKey() + "/" + entry.getValue());
+                if (!player.getUsername().equals(entry.getKey().getUsername())) {
+                    IObserver notificationClient = entry.getValue();
+                    System.out.println("Notifying: " + player.getUsername());
+                    try {
+                        notificationClient.gameStarted(game);
 
-            // metoda observer pt cel care asteapta trebe sa fie apelata
-
-            IObserver notificationClient =  waitingList.get(player2);
-            String username = (String) player2.getUsername();
-            System.out.println(notificationClient);
-            System.out.println(loggedClients);
-            try {
-                notificationClient.gameStarted(game);
-                waitingList.remove(player2);
-
-// trimite response de start game cu cei doi jucatori si cu jocul
-                return new Response.Builder().data(game).type(ResponseType.START_GAME).build();
-            } catch (RemoteException e) {
-                e.printStackTrace();
-                System.out.println("could not notify "+ username+" that game has started");
-                return new Response.Builder().data(e).type(ResponseType.ERROR).build();
+                    } catch (RemoteException e) {
+                        e.printStackTrace();
+                        System.out.println("could not notify " + player.getUsername() + " that game has started");
+                        return new Response.Builder().data(e).type(ResponseType.ERROR).build();
+                    }
+                }
             }
+            waitingList = new ConcurrentHashMap<>();
+            return new Response.Builder().data(game).type(ResponseType.START_GAME).build();
+
+
+
+
+
 
 
 
