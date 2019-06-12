@@ -1,6 +1,7 @@
 package com.razboi.razboi.business.service;
 
 import com.razboi.razboi.persistence.game.PlayerDAO;
+import com.razboi.razboi.persistence.game.entity.Game;
 import com.razboi.razboi.persistence.game.entity.Player;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -21,6 +22,12 @@ public class PlayerServiceImpl implements PlayerService {
     @Override
     public List<Player> findAll() {
         return playerDAO.findAll();
+    }
+
+
+    @Override
+    public List<Game> findAllGamesByPlayer(String username) {
+        return playerDAO.getAllGamesForAPlayer(username);
     }
 
     @Override

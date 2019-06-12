@@ -1,6 +1,7 @@
 package com.razboi.razboi.rest.controller;
 
 import com.razboi.razboi.business.service.PlayerService;
+import com.razboi.razboi.persistence.game.entity.Game;
 import com.razboi.razboi.persistence.game.entity.Player;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
@@ -39,6 +40,20 @@ public class PlayerController {
         }
         return ResponseEntity.ok().body(player);
     }
+
+
+    @RequestMapping(value = "/games-for-player/{username}",
+            method = RequestMethod.GET
+    )
+    @ResponseBody
+    public ResponseEntity<List<Game>> getAllGamesForPlayer(@PathVariable String username) {
+        List<Game> allGamesByPlayer = playerService.findAllGamesByPlayer(username);
+
+        return ResponseEntity.ok().body(allGamesByPlayer);
+    }
+
+
+
 
     @RequestMapping(value = "/save-player",
             method = RequestMethod.POST

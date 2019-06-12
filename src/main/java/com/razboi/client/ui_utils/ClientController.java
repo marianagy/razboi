@@ -17,7 +17,6 @@ import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 
 import java.rmi.RemoteException;
-import java.util.List;
 
 public class ClientController implements IObserver {
 
@@ -47,7 +46,7 @@ public class ClientController implements IObserver {
         return game;
     }
 
-    private ObservableList<String> loggedInUsers;
+    private ObservableList<Player> loggedInUsers;
 
     private StringProperty opponentName = new SimpleStringProperty();
 
@@ -81,20 +80,20 @@ public class ClientController implements IObserver {
 
     }
 
-    public ObservableList<String> getLoggedInUsers() {
+    public ObservableList<Player> getLoggedInUsers() {
         return loggedInUsers;
     }
 
-    public void setLoggedInUsers(ObservableList<String> loggedInUsers) {
+    public void setLoggedInUsers(ObservableList<Player> loggedInUsers) {
         this.loggedInUsers = loggedInUsers;
     }
 
     private void getAllLoggedInUsers() {
-        try {
-            loggedInUsers.addAll((List<String>) server.getAllLoggedInUsers().data());
-        } catch (ServerException e) {
-            e.printStackTrace();
-        }
+//        try {
+//            loggedInUsers.addAll((List<String>) server.getAllLoggedInUsers().data());
+//        } catch (ServerException e) {
+//            e.printStackTrace();
+//        }
     }
 
     public void gameStart() {
@@ -110,7 +109,8 @@ public class ClientController implements IObserver {
 
 
                 this.game = (Game) response.data();
-                ;
+                loggedInUsers.removeAll();
+                loggedInUsers.addAll(game.getParticipants());
 
 
 
@@ -146,6 +146,8 @@ public class ClientController implements IObserver {
     @Override
     public void gameStarted(Game game) throws RemoteException, ServerException {
         System.out.println("game started notification"+ game.toString());
+        loggedInUsers.removeAll();
+        loggedInUsers.addAll(game.getParticipants());
 
         this.game = game;
         //this.currentTurn.setValue(true);
@@ -154,7 +156,7 @@ public class ClientController implements IObserver {
     @Override
     public void userLoggedIn(UserDTO user) {
         System.out.println(user.getUsername() + " just logged in.");
-        this.loggedInUsers.add(user.getUsername());
+        //this.loggedInUsers.add(user.getUsername());
     }
 
     public IServer getServer() {

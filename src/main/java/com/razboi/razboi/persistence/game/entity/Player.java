@@ -34,6 +34,17 @@ public class Player implements Serializable {
     @Column(name = "points")
     private Integer points;
 
+    @Transient
+    private String currentChoice;
+
+    public String getCurrentChoice() {
+        return currentChoice;
+    }
+
+    public void setCurrentChoice(String currentChoice) {
+        this.currentChoice = currentChoice;
+    }
+
     public Player() {
 
     }

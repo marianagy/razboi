@@ -3,6 +3,7 @@ package com.razboi.client.view;
 import com.razboi.client.ui_utils.ClientController;
 import com.razboi.client.ui_utils.Utils;
 import com.razboi.razboi.networking.utils.ServerException;
+import com.razboi.razboi.persistence.game.entity.Player;
 import javafx.application.Platform;
 import javafx.beans.property.BooleanProperty;
 import javafx.beans.property.StringProperty;
@@ -15,10 +16,8 @@ import javafx.event.EventHandler;
 import javafx.geometry.Insets;
 import javafx.scene.Node;
 import javafx.scene.Scene;
-import javafx.scene.control.Alert;
-import javafx.scene.control.Button;
-import javafx.scene.control.Label;
-import javafx.scene.control.ListView;
+import javafx.scene.control.*;
+import javafx.scene.control.cell.PropertyValueFactory;
 import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.GridPane;
 import javafx.scene.layout.Pane;
@@ -45,21 +44,54 @@ public class MainView {
     private static final int NUM_BUTTON_LINES = 3;
     private static final int BUTTONS_PER_LINE = 3;
 
-    private ObservableList<String> loggedInUsers;
+    private ObservableList<Player> loggedInUsers;
     private StringProperty opponent;
     private BooleanProperty currentTurn;
-
+    private TableView tableView;
 
     public MainView(ClientController clientController) {
         this.clientController = clientController;
         this.loggedInUsers = clientController.getLoggedInUsers();
         System.out.println(this.loggedInUsers);
-        this.loggedInUsers.addListener(new ListChangeListener<String>() {
-            @Override
-            public void onChanged(Change<? extends String> c) {
-                System.out.println("List changed");
-                System.out.println(loggedInUsers);
+
+        tableView = new TableView();
+
+        TableColumn<String, Player> column1 = new TableColumn<>("username");
+        column1.setCellValueFactory(new PropertyValueFactory<>("username"));
+
+
+        TableColumn<String, Player> column2 = new TableColumn<>("Choice");
+        column2.setCellValueFactory(new PropertyValueFactory<>("currentChoice"));
+
+
+        tableView.getColumns().add(column1);
+        tableView.getColumns().add(column2);
+
+
+        this.loggedInUsers.addListener((ListChangeListener.Change<? extends Player> change) -> {
+//            @Override
+//            public void onChanged(Change<? extends Player> c) {
+//
+//            }
+            System.out.println("this fired");
+            change.next();
+            System.out.println("List changed");
+            System.out.println(loggedInUsers);
+            Platform.runLater(
+                    () -> {
+
+
+                        pane.setLeft(initPlayers());
+                        pane.setCenter(initGameBoard());
+//                        loggedInUsers.forEach(tableView.getItems()::add);
+                        tableView.getItems().removeAll();
+                        tableView.getItems().addAll(loggedInUsers);
+                    });
+            if (change.wasUpdated() || change.wasPermutated() || change.wasReplaced()) {
+
             }
+
+
         });
         this.opponent = clientController.getOpponentName();
         this.opponent.addListener(new ChangeListener<String>() {
@@ -124,7 +156,7 @@ public class MainView {
 
         GridPane grid = Utils.initWindow("Logged In users");
         ListView<String> list = new ListView<String>();
-        list.setItems(loggedInUsers);
+        //list.setItems(loggedInUsers);
         Label listLabel = new Label();
         listLabel.setText("Logged in users: ");
 
@@ -133,6 +165,12 @@ public class MainView {
         return grid;
     }
 
+
+    private GridPane initPlayers() {
+        GridPane grid = Utils.initWindow("Players: ");
+        grid.add(tableView, 0, 1);
+        return grid;
+    }
 
     private GridPane initPane() {
         GridPane grid = Utils.initWindow("Welcome " + clientController.getUserDTO().getUsername());
@@ -173,22 +211,21 @@ public class MainView {
         grid.setVgap(BUTTON_PADDING);
 
 
-
-        Label instructions = new Label();
-        instructions.setText("Alege pozitia si apasa butonul de start");
-        Label choice_text = new Label();
-        choice_text.setText("Pozitia aleasa: ");
-        choiceLabel = new Label();
-
-        opponentLabel = new Label();
-        currentTurnLabel = new Label();
-        currentTurnLabel.setText("It's your opponents turn");
-        grid.add(instructions, 0, NUM_BUTTON_LINES + 1, 5, 1);
-        grid.add(choice_text, 0, NUM_BUTTON_LINES + 2, 4, 1);
-        grid.add(choiceLabel, 5, NUM_BUTTON_LINES + 2, 1, 1);
-        grid.add(opponentLabel, 0, NUM_BUTTON_LINES + 3, 5, 1);
-        grid.add(currentTurnLabel, 0, NUM_BUTTON_LINES + 4, 5, 1);
-
+//        Label instructions = new Label();
+//        instructions.setText("Alege pozitia si apasa butonul de start");
+//        Label choice_text = new Label();
+//        choice_text.setText("Pozitia aleasa: ");
+//        choiceLabel = new Label();
+//
+//        opponentLabel = new Label();
+//        currentTurnLabel = new Label();
+//        currentTurnLabel.setText("It's your opponents turn");
+//        grid.add(instructions, 0, NUM_BUTTON_LINES + 1, 5, 1);
+//        grid.add(choice_text, 0, NUM_BUTTON_LINES + 2, 4, 1);
+//        grid.add(choiceLabel, 5, NUM_BUTTON_LINES + 2, 1, 1);
+//        grid.add(opponentLabel, 0, NUM_BUTTON_LINES + 3, 5, 1);
+//        grid.add(currentTurnLabel, 0, NUM_BUTTON_LINES + 4, 5, 1);
+        grid.add(tableView, 0, 0, 5, 1);
         return grid;
     }
 
