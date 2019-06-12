@@ -56,11 +56,11 @@ public class MainView {
 
         tableView = new TableView();
 
-        TableColumn<String, Player> column1 = new TableColumn<>("username");
+        TableColumn<String, Player> column1 = new TableColumn<>("Nume Utilizator");
         column1.setCellValueFactory(new PropertyValueFactory<>("username"));
 
 
-        TableColumn<String, Player> column2 = new TableColumn<>("Choice");
+        TableColumn<String, Player> column2 = new TableColumn<>("Alegere");
         column2.setCellValueFactory(new PropertyValueFactory<>("currentChoice"));
 
 
@@ -81,8 +81,8 @@ public class MainView {
                     () -> {
 
 
-                        pane.setLeft(initPlayers());
-                        pane.setCenter(initGameBoard());
+                        pane.setCenter(initPlayers());
+                        pane.setRight(initGameBoard());
 //                        loggedInUsers.forEach(tableView.getItems()::add);
                         tableView.getItems().removeAll();
                         tableView.getItems().addAll(loggedInUsers);
@@ -100,7 +100,7 @@ public class MainView {
                 System.out.println("Opponent arrived...");
                 Platform.runLater(
                         () -> {
-                            opponentLabel.setText("Your opponent: " + newValue);
+                            //opponentLabel.setText("Your opponent: " + newValue);
                             disableButtons();
                         });
             }
@@ -144,7 +144,7 @@ public class MainView {
 
     private void initView() {
         pane = new BorderPane();
-        pane.setRight(initPane());
+        pane.setLeft(initPane());
         //pane.setCenter(initGameBoard());
         //pane.setLeft(makeUserList());
         //pane.setLeft(createScore());
@@ -173,7 +173,7 @@ public class MainView {
     }
 
     private GridPane initPane() {
-        GridPane grid = Utils.initWindow("Welcome " + clientController.getUserDTO().getUsername());
+        GridPane grid = Utils.initWindow("Bine ai venit " + clientController.getUserDTO().getUsername());
 
         Button logoutBtn = new Button("Logout");
         logoutBtn.setOnAction(new EventHandler<ActionEvent>() {
@@ -244,7 +244,7 @@ public class MainView {
             primaryScene.getWindow().hide();
 
         } catch (ServerException e) {
-            Utils.showDialog("Logout neresit: " + e.getMessage(), "Logout", Alert.AlertType.CONFIRMATION);
+            Utils.showDialog("Logout nereusit: " + e.getMessage(), "Logout", Alert.AlertType.CONFIRMATION);
         }
 
     }

@@ -61,7 +61,7 @@ public class AppMain extends Application {
         ClientController ctrl = new ClientController(server);
         primaryStage.setTitle("Triathlon Application");
         BorderPane pane = getView(ctrl);
-        Scene scene = new Scene(pane, 800, 500);
+        Scene scene = new Scene(pane, 400, 450);
         primaryStage.setScene(scene);
         primaryStage.show();
     }

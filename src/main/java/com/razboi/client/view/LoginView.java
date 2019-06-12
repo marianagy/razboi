@@ -77,7 +77,7 @@ public class LoginView {
             Pane root = new MainView(this.clientController).getView();
             Stage stage = new Stage();
             stage.setTitle("Main View");
-            stage.setScene(new Scene(root, 1200, 600));
+            stage.setScene(new Scene(root, 600, 600));
             stage.show();
             //Hide this current window (if this is what you want)
             primaryScene.getWindow().hide();
