@@ -31,6 +31,11 @@ public class PlayerServiceImpl implements PlayerService {
     }
 
     @Override
+    public Player findPlayerInGame(String username, Integer gameId) {
+        return playerDAO.getPlayerByGame(username, gameId);
+    }
+
+    @Override
     public Player findById(int id) throws Exception {
         Optional<Player> result = playerDAO.findById(id);
         if (result.isPresent()) {
@@ -42,6 +47,7 @@ public class PlayerServiceImpl implements PlayerService {
 
         }
     }
+
 
     @Override
     public void save(Player player) {

@@ -34,8 +34,29 @@ public class Player implements Serializable {
     @Column(name = "points")
     private Integer points;
 
+    @Column(name = "chosenWord")
+    private String chosenWord;
+    @Column(name = "choices")
+    private String choices;
     @Transient
+    @JsonIgnore
     private String currentChoice;
+
+    public String getChosenWord() {
+        return chosenWord;
+    }
+
+    public void setChosenWord(String chosenWord) {
+        this.chosenWord = chosenWord;
+    }
+
+    public String getChoices() {
+        return choices;
+    }
+
+    public void setChoices(String choices) {
+        this.choices = choices;
+    }
 
     public String getCurrentChoice() {
         return currentChoice;

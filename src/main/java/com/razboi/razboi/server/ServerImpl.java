@@ -16,7 +16,10 @@ import com.razboi.razboi.persistence.user.entity.User;
 import org.springframework.stereotype.Service;
 
 import java.rmi.RemoteException;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Iterator;
+import java.util.Map;
+import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
@@ -30,6 +33,7 @@ public class ServerImpl implements IServer {
 
     private Map<Player,IObserver> waitingList;
 
+    private boolean gameIsGoingOn;
 
     public ServerImpl() {
         this.authService = new UserService();
@@ -38,6 +42,7 @@ public class ServerImpl implements IServer {
         this.userService.setDao(userDAO);
         loggedClients = new ConcurrentHashMap<>();
         waitingList = new ConcurrentHashMap<>();
+        this.gameIsGoingOn = false;
     }
 
     @Override
@@ -129,6 +134,9 @@ public class ServerImpl implements IServer {
         if (loggedClients.get(player.getUsername()) == null) {
             throw new ServerException("User is not logged in.");
         }
+        if (gameIsGoingOn) {
+            throw new ServerException("Game is already in progress.");
+        }
         // check if waiting list has users
         while (waitingList.isEmpty()) {
             // if waiting list empty
@@ -149,23 +157,7 @@ public class ServerImpl implements IServer {
             game.setParticipants(new ArrayList<>());
             //game.getParticipants().add(player);
 
-            List<String> random_words = new ArrayList<>();
-            random_words.add("nuc");
-            random_words.add("trei");
-            random_words.add("bazin");
-            random_words.add("placinta");
-            random_words.add("casa");
-            random_words.add("abator");
 
-            Collections.shuffle(random_words);
-
-            List<String> game_words = new ArrayList<>();
-            game_words.add(random_words.get(0));
-            game_words.add(random_words.get(1));
-            game_words.add(random_words.get(2));
-            game.setGame_words(game_words);
-
-            game.setWords(game_words.toString());
 
             Set<Player> players = waitingList.keySet();
             game.getParticipants().addAll(players);
@@ -185,7 +177,7 @@ public class ServerImpl implements IServer {
                     }
                 }
             }
-            waitingList = new ConcurrentHashMap<>();
+            waitingList.clear();
             return new Response.Builder().data(game).type(ResponseType.START_GAME).build();
 
 

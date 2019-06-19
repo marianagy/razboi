@@ -53,7 +53,16 @@ public class PlayerController {
     }
 
 
+    @RequestMapping(value = "/player-game/{username}&{gameId}",
+            method = RequestMethod.GET
+    )
+    @ResponseBody
+    public ResponseEntity<Player> getAllPlayerGame(@PathVariable String username, @PathVariable Integer gameId) {
+        Player playerInGame = playerService.findPlayerInGame(username, gameId);
 
+
+        return ResponseEntity.ok().body(playerInGame);
+    }
 
     @RequestMapping(value = "/save-player",
             method = RequestMethod.POST

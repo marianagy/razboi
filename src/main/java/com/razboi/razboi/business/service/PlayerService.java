@@ -16,4 +16,6 @@ public interface PlayerService {
     void deleteById(int id);
 
     List<Game> findAllGamesByPlayer(String username);
+
+    Player findPlayerInGame(String username, Integer gameId);
 }
