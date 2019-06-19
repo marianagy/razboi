@@ -14,12 +14,9 @@ public interface IServer {
     Response getAllLoggedInUsers() throws ServerException;
 
     Response startGame(Player player, IObserver client) throws ServerException;
-//    void startJoc() throws JocException;
 
-//    String getAspectByUsername(String username) throws JocException;
-//    Iterable<Participant> getParticipanti() throws JocException;
-//    void addNota(Participant participant) throws JocException;
+    Response submitWord(Player player) throws ServerException;
 
-//    void alegeCarte(Joc participant) throws ServerException;
+    Response submitLetter(Player player);
 
 }

@@ -17,6 +17,8 @@ import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 
 import java.rmi.RemoteException;
+import java.util.List;
+import java.util.stream.Collectors;
 
 public class ClientController implements IObserver {
 
@@ -66,6 +68,8 @@ public class ClientController implements IObserver {
         return opponentName;
     }
 
+    public Player currentPlayer;
+
     public ClientController(IServer server) throws RemoteException {
         super();
         this.server = server;
@@ -111,7 +115,10 @@ public class ClientController implements IObserver {
                 this.game = (Game) response.data();
                 loggedInUsers.removeAll();
                 loggedInUsers.addAll(game.getParticipants());
-
+                List<Player> filtered = loggedInUsers.stream()
+                        .filter(playerL -> playerL.getUsername().equals(userDTO.getUsername()))
+                        .collect(Collectors.toList());
+                this.currentPlayer = filtered.get(0);
 
 
             }
@@ -137,10 +144,34 @@ public class ClientController implements IObserver {
 
     }
 
+    public void submitWord(String word) throws ServerException {
+
+        int playerIndex = loggedInUsers.indexOf(currentPlayer);
+        loggedInUsers.remove(currentPlayer);
+        currentPlayer.setChosenWord(word);
+
+        StringBuilder transfWordBuilder = new StringBuilder(word);
+        for (int i = 0; i < word.length(); i++) {
+            char c = word.charAt(i);
+            if (c == 'a' || c == 'e' || c == 'i' || c == 'o' || c == 'u') {
+                transfWordBuilder.setCharAt(i, 'v');
+            } else {
+                transfWordBuilder.setCharAt(i, 'c');
+            }
+
+        }
+
+        currentPlayer.setChosenWordTransformed(transfWordBuilder.toString());
+        loggedInUsers.add(playerIndex, currentPlayer);
+
+        this.server.submitWord(currentPlayer);
+    }
+
 //    @Override
 //    public void statsChanged(List<Score> scores) {
 //
 //    }
+
 
 
     @Override
@@ -148,7 +179,10 @@ public class ClientController implements IObserver {
         System.out.println("game started notification"+ game.toString());
         loggedInUsers.removeAll();
         loggedInUsers.addAll(game.getParticipants());
-
+        List<Player> filtered = loggedInUsers.stream()
+                .filter(playerL -> playerL.getUsername().equals(userDTO.getUsername()))
+                .collect(Collectors.toList());
+        this.currentPlayer = filtered.get(0);
         this.game = game;
         //this.currentTurn.setValue(true);
     }
@@ -157,6 +191,17 @@ public class ClientController implements IObserver {
     public void userLoggedIn(UserDTO user) {
         System.out.println(user.getUsername() + " just logged in.");
         //this.loggedInUsers.add(user.getUsername());
+    }
+
+
+    @Override
+    public void wordChosen(Player player) throws RemoteException, ServerException {
+        int playerIndex = loggedInUsers.indexOf(player);
+        if (playerIndex != -1) {
+
+            loggedInUsers.remove(player);
+            loggedInUsers.add(playerIndex, player);
+        }
     }
 
     public IServer getServer() {

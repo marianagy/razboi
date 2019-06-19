@@ -5,6 +5,7 @@ import com.fasterxml.jackson.annotation.JsonIgnore;
 
 import javax.persistence.*;
 import java.io.Serializable;
+import java.util.Objects;
 
 @Entity
 @Table(name = "player")
@@ -36,6 +37,18 @@ public class Player implements Serializable {
 
     @Column(name = "chosenWord")
     private String chosenWord;
+
+    @Transient
+    private String chosenWordTransformed;
+
+    public String getChosenWordTransformed() {
+        return chosenWordTransformed;
+    }
+
+    public void setChosenWordTransformed(String chosenWordTransformed) {
+        this.chosenWordTransformed = chosenWordTransformed;
+    }
+
     @Column(name = "choices")
     private String choices;
     @Transient
@@ -110,5 +123,20 @@ public class Player implements Serializable {
 
     public void setParticipatedInGame(Game participatedInGame) {
         this.participatedInGame = participatedInGame;
+    }
+
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        Player player = (Player) o;
+        return Objects.equals(ID, player.ID) &&
+                Objects.equals(username, player.username);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(ID, username);
     }
 }

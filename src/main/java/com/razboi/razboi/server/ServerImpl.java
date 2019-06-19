@@ -32,8 +32,10 @@ public class ServerImpl implements IServer {
     private Map<String, IObserver> loggedClients;
 
     private Map<Player,IObserver> waitingList;
+    private Map<Player, IObserver> inGameList;
 
     private boolean gameIsGoingOn;
+    private Game currentGame;
 
     public ServerImpl() {
         this.authService = new UserService();
@@ -158,10 +160,11 @@ public class ServerImpl implements IServer {
             //game.getParticipants().add(player);
 
 
-
+            this.inGameList = new ConcurrentHashMap<>(waitingList);
             Set<Player> players = waitingList.keySet();
             game.getParticipants().addAll(players);
 
+            this.currentGame = game;
             for (Map.Entry<Player, IObserver> entry : waitingList.entrySet()) {
                 System.out.println(entry.getKey() + "/" + entry.getValue());
                 if (!player.getUsername().equals(entry.getKey().getUsername())) {
@@ -182,12 +185,40 @@ public class ServerImpl implements IServer {
 
 
 
-
-
-
-
-
-
         }
+    }
+
+    @Override
+    public Response submitWord(Player player) {
+//        int playerIndex = currentGame.getParticipants().indexOf(player);
+//        currentGame.getParticipants().remove(player);
+//
+//        currentGame.getParticipants().add(playerIndex,player);
+
+        //notify everyone
+
+        System.out.println(inGameList.size());
+        for (Map.Entry<Player, IObserver> entry : inGameList.entrySet()) {
+            System.out.println(entry.getKey() + "/" + entry.getValue());
+            if (!player.getUsername().equals(entry.getKey().getUsername())) {
+                IObserver notificationClient = entry.getValue();
+                System.out.println("Notifying: " + entry.getKey().getUsername());
+                try {
+                    notificationClient.wordChosen(player);
+
+                } catch (RemoteException | ServerException e) {
+                    e.printStackTrace();
+                    System.out.println("could not notify " + player.getUsername() + " that game has started");
+                    return new Response.Builder().data(e).type(ResponseType.ERROR).build();
+                }
+            }
+        }
+
+        return new Response.Builder().type(ResponseType.OK).build();
+    }
+
+    @Override
+    public Response submitLetter(Player player) {
+        return null;
     }
 }

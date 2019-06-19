@@ -132,6 +132,17 @@ public class ClientObjectWorker implements Runnable, IObserver {
 
                 return new Response.Builder().data(e).type(ResponseType.ERROR).build();
             }
+        } else if (request.type().equals(RequestType.SUBMIT_WORD)) {
+            System.out.println("Submit word request...");
+
+            Player player = (Player) request.data();
+            try {
+                return server.submitWord(player);
+            } catch (Exception e) {
+                e.printStackTrace();
+
+                return new Response.Builder().data(e).type(ResponseType.ERROR).build();
+            }
         }
         return new Response.Builder().data("Unknown Request").type(ResponseType.ERROR).build();
     }
@@ -166,5 +177,18 @@ public class ClientObjectWorker implements Runnable, IObserver {
         } catch (Exception e) {
             throw new ServerException("Error notifying");
         }
+    }
+
+    @Override
+    public void wordChosen(Player player) throws RemoteException, ServerException {
+        System.out.println("Word chosen (COW)");
+        Response response = new Response.Builder().type(ResponseType.WORD_SUBMITTED).data(player).build();
+        try {
+            Thread.sleep(500);
+            sendResponse(response);
+        } catch (Exception e) {
+            throw new ServerException("Error notifying");
+        }
+
     }
 }

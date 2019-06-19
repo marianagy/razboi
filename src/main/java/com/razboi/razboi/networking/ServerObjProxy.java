@@ -12,6 +12,7 @@ import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.net.Socket;
+import java.rmi.RemoteException;
 import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.LinkedBlockingQueue;
 
@@ -105,6 +106,21 @@ public class ServerObjProxy implements IServer {
 
     }
 
+
+    @Override
+    public Response submitWord(Player player) throws ServerException {
+        sendRequest(new Request.Builder().data(player).type(RequestType.SUBMIT_WORD).build());
+
+        Response response = readResponse();
+        handleErrors(response);
+        return response;
+    }
+
+    @Override
+    public Response submitLetter(Player player) {
+        return null;
+    }
+
     private void handleErrors(Response response) {
         //System.out.println("Some error happened");
     }
@@ -170,7 +186,8 @@ public class ServerObjProxy implements IServer {
 
     private boolean isUpdate(Response response) {
         return response.type() == ResponseType.USER_LOGGED_IN ||
-             response.type() == ResponseType.GAME_STARTED;
+                response.type() == ResponseType.GAME_STARTED ||
+                response.type() == ResponseType.WORD_SUBMITTED;
     }
 
     private void handleUpdate(Response response) {
@@ -199,7 +216,15 @@ public class ServerObjProxy implements IServer {
                 e.printStackTrace();
                 System.out.println("Something went wrong, game started event");
             }
-        }else {
+        } else if (response.type() == ResponseType.WORD_SUBMITTED) {
+            System.out.println("Handling word");
+            Player pl = (Player) response.data();
+            try {
+                client.wordChosen(pl);
+            } catch (RemoteException | ServerException e) {
+                e.printStackTrace();
+            }
+        } else {
             System.out.println("Unknown event happened");
         }
     }

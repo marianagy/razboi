@@ -35,7 +35,8 @@ public class MainView {
     Label opponentLabel;
     Button startButton;
     Label currentTurnLabel;
-
+    TextField yourWord;
+    TextField letterChoice;
 
     List<Button> planeButtons = new ArrayList<>();
     //board constants
@@ -59,9 +60,8 @@ public class MainView {
         TableColumn<String, Player> column1 = new TableColumn<>("Nume Utilizator");
         column1.setCellValueFactory(new PropertyValueFactory<>("username"));
 
-
-        TableColumn<String, Player> column2 = new TableColumn<>("Alegere");
-        column2.setCellValueFactory(new PropertyValueFactory<>("currentChoice"));
+        TableColumn<String, Player> column2 = new TableColumn<>("Cuvant ales: ");
+        column2.setCellValueFactory(new PropertyValueFactory<>("chosenWordTransformed"));
 
 
         tableView.getColumns().add(column1);
@@ -84,8 +84,9 @@ public class MainView {
                         pane.setCenter(initPlayers());
                         pane.setRight(initGameBoard());
 //                        loggedInUsers.forEach(tableView.getItems()::add);
-                        tableView.getItems().removeAll();
-                        tableView.getItems().addAll(loggedInUsers);
+                        tableView.setItems(loggedInUsers);
+
+                        tableView.refresh();
                     });
             if (change.wasUpdated() || change.wasPermutated() || change.wasReplaced()) {
 
@@ -225,7 +226,44 @@ public class MainView {
 //        grid.add(choiceLabel, 5, NUM_BUTTON_LINES + 2, 1, 1);
 //        grid.add(opponentLabel, 0, NUM_BUTTON_LINES + 3, 5, 1);
 //        grid.add(currentTurnLabel, 0, NUM_BUTTON_LINES + 4, 5, 1);
+
+
+        Label ywInstruction = new Label();
+        ywInstruction.setText("Alege cuvantul: ");
+        yourWord = new TextField();
+
+        Label lcInstruction = new Label();
+        lcInstruction.setText("Cand iti vine randul, alege: ");
+        letterChoice = new TextField();
+
+        Button lcOk = new Button();
+        lcOk.setText("Submit Letter");
+        lcOk.setDisable(true);
+        Button ywOk = new Button();
+        ywOk.setText("Submit word");
+        ywOk.setOnAction(event -> {
+            if (yourWord.getText().equals("")) {
+                System.out.println("Enter a word");
+                //add a bubble
+            } else {
+                ywOk.setDisable(true);
+                try {
+                    this.clientController.submitWord(yourWord.getText());
+                } catch (ServerException e) {
+                    e.printStackTrace();
+                }
+            }
+
+        });
+
+
         grid.add(tableView, 0, 0, 5, 1);
+        grid.add(ywInstruction, 0, 1);
+        grid.add(yourWord, 0, 2);
+        grid.add(ywOk, 1, 2);
+        grid.add(lcInstruction, 0, 3);
+        grid.add(letterChoice, 0, 3);
+        grid.add(lcOk, 1, 3);
         return grid;
     }
 
